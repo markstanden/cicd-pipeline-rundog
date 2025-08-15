@@ -30,7 +30,7 @@ jobs:
 
   call-sonarqube:
     name: SonarQube Analysis
-    uses: ./.github/workflows/sonarqube.yml
+    uses: markstanden/coding-standards/.github/workflows/sonarqube.yml@main
     needs: call-unit-tests
     with:
       dotnet-version: '8.0.x'
