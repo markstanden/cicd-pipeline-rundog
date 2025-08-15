@@ -34,7 +34,7 @@ jobs:
     needs: call-unit-tests
     with:
       dotnet-version: '8.0.x'
-      sonar-project-key: 'rundog'
+      sonar-project-key: 'markstanden_rundog'
       sonar-organization: 'markstanden'
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
