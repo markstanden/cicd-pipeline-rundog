@@ -55,7 +55,18 @@ local.settings.*.json
 *.tfstate
 *.tfstate.*
 *.tfvars
+!*.example.tfvars
+!*.tfvars.example
+!terraform.tfvars.example
 *.tfvars.json
+!terraform.tfvars.example.json
 .terraform/
-.terraform.lock.hcl
 .terraform.tfstate.lock.info
+crash.log
+crash.*.log
+*.tfplan
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+# Intentionally track .terraform.lock.hcl for provider pinning
