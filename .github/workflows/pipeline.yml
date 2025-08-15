@@ -1,0 +1,38 @@
+name: Code Quality Pipeline
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ["main", "prod"]
+  push:
+    branches: ["main", "prod"]
+
+jobs:
+  call-format:
+    name: Code Formatting Compliance Check
+    uses: markstanden/coding-standards/.github/workflows/format.yml@main
+    with:
+      dotnet-version: '8.0.x'
+
+  call-build:
+    name: Build Solution
+    uses: markstanden/coding-standards/.github/workflows/build.yml@main
+    needs: call-format
+    with:
+      dotnet-version: '8.0.x'
+
+  call-unit-tests:
+    name: Run Unit Tests
+    uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@main
+    needs: call-build
+    with:
+      dotnet-version: '8.0.x'
+      test-filter: 'FullyQualifiedName~Unit.Tests'
+
+  call-sonarqube:
+    name: SonarQube Analysis
+    uses: markstanden/coding-standards/.github/workflows/sonarqube.yml@main
+    needs: call-unit-tests
+    with:
+      dotnet-version: '8.0.x'
+      sonar-project-key: 'rundog'
+      sonar-organization: 'markstanden'
