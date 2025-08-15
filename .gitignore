@@ -1,5 +1,68 @@
+# Build outputs
 bin/
 obj/
+
+# NuGet packages
 /packages/
+
+# IDE and Editor files
+.idea/
+.vscode/
 riderModule.iml
 /_ReSharper.Caches/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Code quality tools
+.sonar/
+.sonarlint/
+
+# User secrets and configuration
+appsettings.Development.json
+appsettings.Local.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Azure deployment artifacts
+.azure/
+*.zip
+*.war
+
+# Azure Static Web App
+.swa/
+.swa-cli.config.json
+.swa-cli.config.local.json
+
+# Azure Function App local settings
+local.settings.json
+local.settings.*.json
+
+# OpenTofu/Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.example.tfvars
+!*.tfvars.example
+!terraform.tfvars.example
+*.tfvars.json
+!terraform.tfvars.example.json
+.terraform/
+.terraform.tfstate.lock.info
+crash.log
+crash.*.log
+*.tfplan
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+# Intentionally track .terraform.lock.hcl for provider pinning
