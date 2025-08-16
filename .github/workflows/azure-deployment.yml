@@ -1,4 +1,4 @@
-name: Azure Deployment
+name: "Azure Deployment"
 
 on:
   workflow_run:
