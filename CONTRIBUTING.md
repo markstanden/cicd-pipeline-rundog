@@ -21,13 +21,17 @@ dotnet build rundog/rundog.csproj --no-restore
 
 ```bash
 # Add your package first
-dotnet add rundog package Microsoft.Extensions.Logging --version 8.0.0
+dotnet add rundog/rundog.csproj package Microsoft.Extensions.Logging --version 8.0.0
 
 # Then regenerate the lock file
 dotnet restore rundog/rundog.csproj --force-evaluate
+
+# And verify locked mode works
+dotnet restore rundog/rundog.csproj --locked-mode
+dotnet build rundog/rundog.csproj --no-restore
 ```
 
->  ⚠️  **Important:**  
+> ⚠️  **Important:**  
 >
 > Always commit both the `.csproj` and `packages.lock.json` files together.
 
@@ -36,4 +40,5 @@ dotnet restore rundog/rundog.csproj --force-evaluate
 If you get lock file errors:
 ```bash
 dotnet restore rundog/rundog.csproj --force-evaluate
+dotnet restore rundog/rundog.csproj --locked-mode
 ```
