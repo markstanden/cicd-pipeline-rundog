@@ -45,3 +45,5 @@ jobs:
           app_location: "publish/wwwroot"
           output_location: ""
           skip_app_build: true
+          deployment_environment: "main"
+          is_static_export: true
