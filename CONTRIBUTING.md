@@ -14,7 +14,7 @@ dotnet restore rundog/rundog.csproj --force-evaluate
 
 # Verify everything works with the lock file
 dotnet restore rundog/rundog.csproj --locked-mode
-dotnet build
+dotnet build rundog/rundog.csproj --no-restore
 ```
 
 ### Adding New Packages
