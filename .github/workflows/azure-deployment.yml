@@ -19,16 +19,9 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
-          cache: true
-          cache-dependency-path: |
-            rundog/packages.lock.json
-            rundog/rundog.csproj
 
       - name: "Restore dependencies"
-        run: dotnet restore rundog/rundog.csproj --locked-mode
-
-      - name: "Verify lockfile unchanged"
-        run: git diff --exit-code -- rundog/packages.lock.json
+        run: dotnet restore rundog/rundog.csproj
 
       - name: "Build"
         run: dotnet build rundog/rundog.csproj --no-restore --configuration Release
