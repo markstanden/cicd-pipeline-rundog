@@ -48,4 +48,4 @@ jobs:
           app_location: "publish/wwwroot"
           output_location: ""
           skip_app_build: true
-          deployment_environment: production
+          deployment_environment: Production
