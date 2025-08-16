@@ -7,8 +7,6 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <RestoreLocked>true</RestoreLocked>
-        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
         <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
     </PropertyGroup>
 
