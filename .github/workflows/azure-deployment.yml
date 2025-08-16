@@ -2,13 +2,13 @@ name: "Azure Deployment [Production]"
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Code Quality Pipeline"]
-    types: ["completed"]
+  pull_request:
+    branches: ["main"]
+    types: ["closed"]
 
 jobs:
   deploy:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true) }}
     runs-on: "ubuntu-latest"
     name: "Deploy Frontend to Azure Static Web App [Production]"
     steps:
