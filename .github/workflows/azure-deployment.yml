@@ -12,7 +12,6 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success') }}
     runs-on: "ubuntu-latest"
     name: "Deploy Frontend to Azure Static Web App [Production]"
-    
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
@@ -22,9 +21,15 @@ jobs:
         with:
           dotnet-version: "8.0.x"
           cache: true
+          cache-dependency-path: |
+            rundog/packages.lock.json
+            rundog/rundog.csproj
 
       - name: "Restore dependencies"
-        run: dotnet restore rundog/rundog.csproj
+        run: dotnet restore rundog/rundog.csproj --locked-mode
+
+      - name: "Verify lockfile unchanged"
+        run: git diff --exit-code -- rundog/packages.lock.json
 
       - name: "Build"
         run: dotnet build rundog/rundog.csproj --no-restore --configuration Release
