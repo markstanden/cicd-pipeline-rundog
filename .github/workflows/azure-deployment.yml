@@ -23,9 +23,10 @@ jobs:
           cache: true
 
       - name: "Restore dependencies"
-        run: |
-          dotnet restore rundog/rundog.csproj --locked-mode
-          git diff --exit-code -- rundog/packages.lock.json
+        run: dotnet restore rundog/rundog.csproj --locked-mode
+          
+      - name: "Verify lockfile unchanged"
+        run: git diff --exit-code -- rundog/packages.lock.json
 
       - name: "Build"
         run: dotnet build rundog/rundog.csproj --no-restore --configuration Release
