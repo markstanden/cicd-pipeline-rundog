@@ -1,6 +1,7 @@
-name: "Azure Deployment"
+name: "Azure Deployment [Production]"
 
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: ["Code Quality Pipeline"]
     types: ["completed"]
@@ -8,9 +9,9 @@ on:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    name: Deploy to Production
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success') }}
+    runs-on: "ubuntu-latest"
+    name: "Deploy Frontend to Azure Static Web App [Production]"
     
     steps:
       - name: "Checkout"
@@ -34,7 +35,7 @@ jobs:
       - name: "Upload build artifacts"
         uses: actions/upload-artifact@v4
         with:
-          name: rundog-app
+          name: "rundog-dev-frontend"
           path: ./publish
           retention-days: 30
 
