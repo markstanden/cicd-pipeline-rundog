@@ -3,8 +3,7 @@ name: Azure Deployment
 on:
   workflow_run:
     workflows: ["Code Quality Pipeline"]
-    types:
-      - completed
+    types: ["completed"]
     branches: ["main"]
 
 jobs:
@@ -14,32 +13,32 @@ jobs:
     name: Deploy to Production
     
     steps:
-      - name: Checkout
+      - name: "Checkout"
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: "Setup .NET"
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
           cache: true
 
-      - name: Restore dependencies
+      - name: "Restore dependencies"
         run: dotnet restore rundog/rundog.csproj
 
-      - name: Build
+      - name: "Build"
         run: dotnet build rundog/rundog.csproj --no-restore --configuration Release
 
-      - name: Publish
+      - name: "Publish"
         run: dotnet publish rundog/rundog.csproj --no-restore --configuration Release --output ./publish
 
-      - name: Upload build artifacts
+      - name: "Upload build artifacts"
         uses: actions/upload-artifact@v4
         with:
           name: rundog-app
           path: ./publish
           retention-days: 30
 
-      - name: Deploy to Azure Static Web App
+      - name: "Deploy to Azure Static Web App"
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
@@ -48,4 +47,4 @@ jobs:
           app_location: "publish/wwwroot"
           output_location: ""
           skip_app_build: true
-          deployment_environment: Production
+          deployment_environment: "Production"
