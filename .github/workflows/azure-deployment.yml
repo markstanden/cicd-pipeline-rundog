@@ -49,6 +49,10 @@ jobs:
     needs: call-sonarqube
     runs-on: "ubuntu-latest"
     name: "Deploy Frontend to Azure Static Web App [Staging]"
+    environment: "staging"
+    concurrency:
+      group: staging-swa-deploy
+      cancel-in-progress: true
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
@@ -71,6 +75,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "rundog-frontend-staging"
+          if-no-files-found: error
           path: ./publish
           retention-days: 30
 
@@ -99,6 +104,9 @@ jobs:
     runs-on: "ubuntu-latest"
     name: "Deploy Frontend to Azure Static Web App [Production]"
     environment: "production"
+    concurrency:
+      group: production-swa-deploy
+      cancel-in-progress: true
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
@@ -121,6 +129,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "rundog-frontend-production"
+          if-no-files-found: error
           path: ./publish
           retention-days: 30
 
