@@ -6,35 +6,35 @@ on:
     branches: [ "main" ]
 
 jobs:
-  call-format:
+  check-formatting:
     name: "Code Formatting Compliance Check"
     uses: markstanden/coding-standards/.github/workflows/format.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
-  call-build:
-    needs: "call-format"
+  build-succeeds:
+    needs: "check-formatting"
     name: "Build Solution"
     uses: markstanden/coding-standards/.github/workflows/build.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
-  call-unit-tests:
-    needs: "call-build"
+  run-unit-tests:
+    needs: "build-succeeds"
     name: "Run Unit Tests"
     uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
-  call-integration-tests:
-    needs: "call-unit-tests"
+  run-integration-tests:
+    needs: "run-unit-tests"
     name: "Run Integration Tests"
     uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
-  call-sonarqube:
-    needs: "call-integration-tests"
+  run-sonarqube-deep-analysis:
+    needs: "run-integration-tests"
     name: "SonarQube Analysis"
     uses: markstanden/coding-standards/.github/workflows/sonarqube.yml@main
     with:
@@ -43,14 +43,10 @@ jobs:
       sonar-organization: "markstanden"
     secrets: inherit
 
-  staging-swa-deploy:
-    needs: "call-sonarqube"
-    name: "Deploy Frontend to Azure Static Web App [staging]"
+  build-frontend-release:
+    needs: "run-sonarqube-deep-analysis"
+    name: "Build Frontend Artifact"
     runs-on: "ubuntu-latest"
-    environment: "staging"
-    concurrency:
-      group: staging-swa-deploy
-      cancel-in-progress: true
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
@@ -72,10 +68,25 @@ jobs:
       - name: "Upload build artifacts"
         uses: actions/upload-artifact@v4
         with:
-          name: "rundog-frontend-staging"
+          name: "rundog-frontend"
           if-no-files-found: error
           path: ./publish
           retention-days: 30
+
+  staging-frontend-deploy:
+    needs: "build-frontend-release"
+    name: "Deploy Frontend to staging"
+    runs-on: "ubuntu-latest"
+    environment: "staging"
+    concurrency:
+      group: staging-swa-deploy
+      cancel-in-progress: true
+    steps:
+      - name: "Download build artifacts"
+        uses: actions/download-artifact@v4
+        with:
+          name: "rundog-frontend"
+          path: ./publish
 
       - name: "Deploy to Azure Static Web App"
         uses: Azure/static-web-apps-deploy@v1
@@ -89,46 +100,27 @@ jobs:
           is_static_export: true
           deployment_environment: "staging"
 
-  call-e2e-tests:
+  run-e2e-tests:
     needs: "staging-swa-deploy"
     name: "Run End-to-End Tests"
     uses: markstanden/coding-standards/.github/workflows/end-to-end-tests.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
-  production-swa-deploy:
-    needs: "call-e2e-tests"
-    name: "Deploy Frontend to Azure Static Web App [production]"
+  production-frontend-deploy:
+    needs: "run-e2e-tests"
+    name: "Deploy Frontend to production"
     runs-on: "ubuntu-latest"
     environment: "production"
     concurrency:
       group: "production-swa-deploy"
       cancel-in-progress: true
     steps:
-      - name: "Checkout"
-        uses: actions/checkout@v4
-
-      - name: "Setup .NET"
-        uses: actions/setup-dotnet@v4
+      - name: "Download build artifacts"
+        uses: actions/download-artifact@v4
         with:
-          dotnet-version: ${{ vars.DOTNET_VERSION }}
-
-      - name: "Restore dependencies"
-        run: dotnet restore rundog/rundog.csproj
-
-      - name: "Build"
-        run: dotnet build rundog/rundog.csproj --no-restore --configuration Release
-
-      - name: "Publish"
-        run: dotnet publish rundog/rundog.csproj --no-restore --configuration Release --output ./publish
-
-      - name: "Upload build artifacts"
-        uses: actions/upload-artifact@v4
-        with:
-          name: "rundog-frontend-production"
-          if-no-files-found: error
+          name: "rundog-frontend"
           path: ./publish
-          retention-days: 30
 
       - name: "Deploy to Azure Static Web App"
         uses: Azure/static-web-apps-deploy@v1
