@@ -3,45 +3,42 @@ name: "Azure CI/CD Deployment"
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
-
-env:
-  DOTNET_VERSION: "8.0.x"
+    branches: [ "main" ]
 
 jobs:
   call-format:
     name: "Code Formatting Compliance Check"
     uses: markstanden/coding-standards/.github/workflows/format.yml@main
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   call-build:
     needs: "call-format"
     name: "Build Solution"
     uses: markstanden/coding-standards/.github/workflows/build.yml@main
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   call-unit-tests:
     needs: "call-build"
     name: "Run Unit Tests"
     uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@main
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   call-integration-tests:
     needs: "call-unit-tests"
     name: "Run Integration Tests"
     uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@main
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   call-sonarqube:
     needs: "call-integration-tests"
     name: "SonarQube Analysis"
     uses: markstanden/coding-standards/.github/workflows/sonarqube.yml@main
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
       sonar-project-key: "markstanden_rundog"
       sonar-organization: "markstanden"
     secrets: inherit
@@ -61,7 +58,7 @@ jobs:
       - name: "Setup .NET"
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: ${{ vars.DOTNET_VERSION }}
 
       - name: "Restore dependencies"
         run: dotnet restore rundog/rundog.csproj
@@ -97,7 +94,7 @@ jobs:
     name: "Run End-to-End Tests"
     uses: markstanden/coding-standards/.github/workflows/end-to-end-tests.yml@main
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   production-swa-deploy:
     needs: "call-e2e-tests"
@@ -114,7 +111,7 @@ jobs:
       - name: "Setup .NET"
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: ${{ vars.DOTNET_VERSION }}
 
       - name: "Restore dependencies"
         run: dotnet restore rundog/rundog.csproj
