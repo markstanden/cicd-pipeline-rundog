@@ -2,13 +2,100 @@ name: "Azure Deployment [Production]"
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: ["main"]
-    types: ["closed"]
+  push:
+    branches: [main]
 
 jobs:
-  deploy:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true) }}
+  call-format:
+    name: "Code Formatting Compliance Check"
+    uses: markstanden/coding-standards/.github/workflows/format.yml@main
+    with:
+      dotnet-version: "8.0.x"
+
+  call-build:
+    name: "Build Solution"
+    uses: markstanden/coding-standards/.github/workflows/build.yml@main
+    needs: "call-format"
+    with:
+      dotnet-version: "8.0.x"
+
+  call-unit-tests:
+    name: "Run Unit Tests"
+    uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@main
+    needs: "call-build"
+    with:
+      dotnet-version: "8.0.x"
+      test-filter: "FullyQualifiedName~Unit.Tests"
+
+  call-integration-tests:
+    name: "Run Integration Tests"
+    uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@main
+    needs: "call-unit-tests"
+    with:
+      dotnet-version: "8.0.x"
+      test-filter: "FullyQualifiedName~Integration.Tests"
+
+  call-sonarqube:
+    name: "SonarQube Analysis"
+    uses: markstanden/coding-standards/.github/workflows/sonarqube.yml@main
+    needs: "call-integration-tests"
+    with:
+      dotnet-version: "8.0.x"
+      sonar-project-key: "markstanden_rundog"
+      sonar-organization: "markstanden"
+    secrets: inherit
+  
+  staging-swa-deploy:
+    needs: call-sonarqube
+    runs-on: "ubuntu-latest"
+    name: "Deploy Frontend to Azure Static Web App [Staging]"
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Setup .NET"
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: "Restore dependencies"
+        run: dotnet restore rundog/rundog.csproj
+
+      - name: "Build"
+        run: dotnet build rundog/rundog.csproj --no-restore --configuration Release
+
+      - name: "Publish"
+        run: dotnet publish rundog/rundog.csproj --no-restore --configuration Release --output ./publish
+
+      - name: "Upload build artifacts"
+        uses: actions/upload-artifact@v4
+        with:
+          name: "rundog-dev-frontend"
+          path: ./publish
+          retention-days: 30
+
+      - name: "Deploy to Azure Static Web App"
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "publish/wwwroot"
+          output_location: ""
+          skip_app_build: true
+          is_static_export: true
+          deployment_environment: "Staging"
+          
+  call-e2e-tests:
+    name: "Run End-to-End Tests"
+    uses: markstanden/coding-standards/.github/workflows/common-test-runner.yml@main
+    needs: staging-swa-deploy
+    with:
+      dotnet-version: "8.0.x"
+      test-filter: "FullyQualifiedName~E2E.Tests"
+      
+  production-swa-deploy:
+    needs: call-e2e-tests
     runs-on: "ubuntu-latest"
     name: "Deploy Frontend to Azure Static Web App [Production]"
     steps:
@@ -45,5 +132,4 @@ jobs:
           app_location: "publish/wwwroot"
           output_location: ""
           skip_app_build: true
-          deployment_environment: "main"
           is_static_export: true
