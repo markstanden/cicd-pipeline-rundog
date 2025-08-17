@@ -112,6 +112,7 @@ jobs:
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       artifact-name: "rundog-frontend"
+      test-project-path: "rundog.E2E.Tests"
 
   production-frontend-deploy:
     needs: "run-e2e-tests"
