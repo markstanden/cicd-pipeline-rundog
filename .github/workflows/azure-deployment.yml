@@ -45,7 +45,7 @@ jobs:
       sonar-project-key: "markstanden_rundog"
       sonar-organization: "markstanden"
     secrets: inherit
-  
+
   staging-swa-deploy:
     needs: "call-sonarqube"
     name: "Deploy Frontend to Azure Static Web App [staging]"
