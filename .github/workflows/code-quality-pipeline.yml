@@ -6,33 +6,33 @@ on:
     branches: [ "main" ]
 
 jobs:
-  call-format:
+  check-formatting:
     name: "Code Formatting Compliance Check"
     uses: markstanden/coding-standards/.github/workflows/format.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
-  call-build:
-    needs: "call-format"
+  build-succeeds:
+    needs: "check-formatting"
     name: "Build Solution"
     uses: markstanden/coding-standards/.github/workflows/build.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
-  call-unit-tests:
-    needs: "call-build"
+  run-unit-tests:
+    needs: "build-succeeds"
     name: "Run Unit Tests"
     uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-filter: "FullyQualifiedName~Unit.Tests"
 
-  call-sonarqube:
-    needs: "call-unit-tests"
+  run-sonarqube-deep-analysis:
+    needs: "run-unit-tests"
     name: "SonarQube Analysis"
     uses: markstanden/coding-standards/.github/workflows/sonarqube.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-      sonar-project-key: "markstanden_rundog"
-      sonar-organization: "markstanden"
+      sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
+      sonar-organization: ${{ vars.SONAR_ORGANIZATION }}
     secrets: inherit
