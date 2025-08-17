@@ -15,6 +15,7 @@ riderModule.iml
 *~
 .DS_Store
 Thumbs.db
+*.DotSettings.user
 
 # Code quality tools
 .sonar/
