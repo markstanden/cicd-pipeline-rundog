@@ -111,6 +111,7 @@ jobs:
     uses: markstanden/coding-standards/.github/workflows/end-to-end-tests.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
+      artifact-name: "rundog-frontend"
 
   production-frontend-deploy:
     needs: "run-e2e-tests"
