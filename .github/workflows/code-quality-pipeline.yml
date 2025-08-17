@@ -33,6 +33,6 @@ jobs:
     uses: markstanden/coding-standards/.github/workflows/sonarqube.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-      sonar-project-key: "markstanden_rundog"
-      sonar-organization: "markstanden"
+      sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
+      sonar-organization: ${{ vars.SONAR_ORGANIZATION }}
     secrets: inherit
