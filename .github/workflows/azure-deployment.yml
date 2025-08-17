@@ -1,4 +1,4 @@
-name: "Azure Deployment [Production]"
+name: "Azure CI/CD Deployment"
 
 on:
   workflow_dispatch:
@@ -85,7 +85,7 @@ jobs:
           skip_app_build: true
           is_static_export: true
           deployment_environment: "Staging"
-          
+  
   call-e2e-tests:
     name: "Run End-to-End Tests"
     uses: markstanden/coding-standards/.github/workflows/common-test-runner.yml@main
@@ -93,7 +93,7 @@ jobs:
     with:
       dotnet-version: "8.0.x"
       test-filter: "FullyQualifiedName~E2E.Tests"
-      
+  
   production-swa-deploy:
     needs: call-e2e-tests
     runs-on: "ubuntu-latest"
