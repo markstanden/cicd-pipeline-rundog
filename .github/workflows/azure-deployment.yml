@@ -84,7 +84,7 @@ jobs:
           output_location: ""
           skip_app_build: true
           is_static_export: true
-          deployment_environment: "Staging"
+          deployment_environment: "staging"
 
   call-e2e-tests:
     name: "Run End-to-End Tests"
