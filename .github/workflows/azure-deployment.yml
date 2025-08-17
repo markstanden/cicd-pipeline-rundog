@@ -1,4 +1,4 @@
-name: "Azure Deployment [Production]"
+name: "Azure CI/CD Deployment"
 
 on:
   workflow_dispatch:
@@ -49,6 +49,10 @@ jobs:
     needs: call-sonarqube
     runs-on: "ubuntu-latest"
     name: "Deploy Frontend to Azure Static Web App [Staging]"
+    environment: "staging"
+    concurrency:
+      group: staging-swa-deploy
+      cancel-in-progress: true
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
@@ -70,7 +74,8 @@ jobs:
       - name: "Upload build artifacts"
         uses: actions/upload-artifact@v4
         with:
-          name: "rundog-dev-frontend"
+          name: "rundog-frontend-staging"
+          if-no-files-found: error
           path: ./publish
           retention-days: 30
 
@@ -84,8 +89,8 @@ jobs:
           output_location: ""
           skip_app_build: true
           is_static_export: true
-          deployment_environment: "Staging"
-          
+          deployment_environment: "staging"
+
   call-e2e-tests:
     name: "Run End-to-End Tests"
     uses: markstanden/coding-standards/.github/workflows/common-test-runner.yml@main
@@ -93,11 +98,15 @@ jobs:
     with:
       dotnet-version: "8.0.x"
       test-filter: "FullyQualifiedName~E2E.Tests"
-      
+
   production-swa-deploy:
     needs: call-e2e-tests
     runs-on: "ubuntu-latest"
     name: "Deploy Frontend to Azure Static Web App [Production]"
+    environment: "production"
+    concurrency:
+      group: production-swa-deploy
+      cancel-in-progress: true
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
@@ -119,7 +128,8 @@ jobs:
       - name: "Upload build artifacts"
         uses: actions/upload-artifact@v4
         with:
-          name: "rundog-dev-frontend"
+          name: "rundog-frontend-production"
+          if-no-files-found: error
           path: ./publish
           retention-days: 30
 
