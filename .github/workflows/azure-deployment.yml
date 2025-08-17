@@ -13,32 +13,30 @@ jobs:
       dotnet-version: "8.0.x"
 
   call-build:
+    needs: "call-format"
     name: "Build Solution"
     uses: markstanden/coding-standards/.github/workflows/build.yml@main
-    needs: "call-format"
     with:
       dotnet-version: "8.0.x"
 
   call-unit-tests:
+    needs: "call-build"
     name: "Run Unit Tests"
     uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@main
-    needs: "call-build"
     with:
       dotnet-version: "8.0.x"
-      test-filter: "FullyQualifiedName~Unit.Tests"
 
   call-integration-tests:
+    needs: "call-unit-tests"
     name: "Run Integration Tests"
     uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@main
-    needs: "call-unit-tests"
     with:
       dotnet-version: "8.0.x"
-      test-filter: "FullyQualifiedName~Integration.Tests"
 
   call-sonarqube:
+    needs: "call-integration-tests"
     name: "SonarQube Analysis"
     uses: markstanden/coding-standards/.github/workflows/sonarqube.yml@main
-    needs: "call-integration-tests"
     with:
       dotnet-version: "8.0.x"
       sonar-project-key: "markstanden_rundog"
@@ -46,9 +44,9 @@ jobs:
     secrets: inherit
   
   staging-swa-deploy:
-    needs: call-sonarqube
+    needs: "call-sonarqube"
+    name: "Deploy Frontend to Azure Static Web App [staging]"
     runs-on: "ubuntu-latest"
-    name: "Deploy Frontend to Azure Static Web App [Staging]"
     environment: "staging"
     concurrency:
       group: staging-swa-deploy
@@ -92,20 +90,19 @@ jobs:
           deployment_environment: "staging"
 
   call-e2e-tests:
+    needs: "staging-swa-deploy"
     name: "Run End-to-End Tests"
-    uses: markstanden/coding-standards/.github/workflows/common-test-runner.yml@main
-    needs: staging-swa-deploy
+    uses: markstanden/coding-standards/.github/workflows/end-to-end-tests.yml@main
     with:
       dotnet-version: "8.0.x"
-      test-filter: "FullyQualifiedName~E2E.Tests"
 
   production-swa-deploy:
-    needs: call-e2e-tests
+    needs: "call-e2e-tests"
+    name: "Deploy Frontend to Azure Static Web App [production]"
     runs-on: "ubuntu-latest"
-    name: "Deploy Frontend to Azure Static Web App [Production]"
     environment: "production"
     concurrency:
-      group: production-swa-deploy
+      group: "production-swa-deploy"
       cancel-in-progress: true
     steps:
       - name: "Checkout"
