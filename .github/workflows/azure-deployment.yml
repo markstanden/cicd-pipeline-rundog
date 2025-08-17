@@ -10,35 +10,35 @@ jobs:
     name: "Code Formatting Compliance Check"
     uses: markstanden/coding-standards/.github/workflows/format.yml@main
     with:
-      dotnet-version: "8.0.x"
+      dotnet-version: &dotnet-version "8.0.x"
 
   call-build:
     needs: "call-format"
     name: "Build Solution"
     uses: markstanden/coding-standards/.github/workflows/build.yml@main
     with:
-      dotnet-version: "8.0.x"
+      dotnet-version: *dotnet-version
 
   call-unit-tests:
     needs: "call-build"
     name: "Run Unit Tests"
     uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@main
     with:
-      dotnet-version: "8.0.x"
+      dotnet-version: *dotnet-version
 
   call-integration-tests:
     needs: "call-unit-tests"
     name: "Run Integration Tests"
     uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@main
     with:
-      dotnet-version: "8.0.x"
+      dotnet-version: *dotnet-version
 
   call-sonarqube:
     needs: "call-integration-tests"
     name: "SonarQube Analysis"
     uses: markstanden/coding-standards/.github/workflows/sonarqube.yml@main
     with:
-      dotnet-version: "8.0.x"
+      dotnet-version: *dotnet-version
       sonar-project-key: "markstanden_rundog"
       sonar-organization: "markstanden"
     secrets: inherit
@@ -58,7 +58,7 @@ jobs:
       - name: "Setup .NET"
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: *dotnet-version
 
       - name: "Restore dependencies"
         run: dotnet restore rundog/rundog.csproj
@@ -94,7 +94,7 @@ jobs:
     name: "Run End-to-End Tests"
     uses: markstanden/coding-standards/.github/workflows/end-to-end-tests.yml@main
     with:
-      dotnet-version: "8.0.x"
+      dotnet-version: *dotnet-version
 
   production-swa-deploy:
     needs: "call-e2e-tests"
@@ -111,7 +111,7 @@ jobs:
       - name: "Setup .NET"
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: *dotnet-version
 
       - name: "Restore dependencies"
         run: dotnet restore rundog/rundog.csproj
