@@ -84,7 +84,7 @@ jobs:
     runs-on: "ubuntu-latest"
     environment: "staging"
     outputs:
-      staging-url: ${{ steps.deploy.outputs.static_web_app_url }}
+      staging-url: ${{ steps.staging_deploy.outputs.static_web_app_url }}
     concurrency:
       group: staging-swa-deploy
       cancel-in-progress: true
@@ -97,6 +97,7 @@ jobs:
 
       - name: "Deploy to Azure Static Web App"
         uses: Azure/static-web-apps-deploy@v1
+        id: staging_deploy
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -133,6 +134,7 @@ jobs:
 
       - name: "Deploy to Azure Static Web App"
         uses: Azure/static-web-apps-deploy@v1
+        id: production_deploy
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
