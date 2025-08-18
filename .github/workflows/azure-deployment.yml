@@ -7,14 +7,12 @@ on:
 
 jobs:
   check-formatting:
-    if: false #Skipping whilst testing E2E test stage
     name: "Code Formatting Compliance Check"
     uses: markstanden/coding-standards/.github/workflows/format.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   build-succeeds:
-    if: false #Skipping whilst testing E2E test stage
     needs: "check-formatting"
     name: "Build Solution"
     uses: markstanden/coding-standards/.github/workflows/build.yml@main
@@ -22,7 +20,6 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-unit-tests:
-    if: false #Skipping whilst testing E2E test stage
     needs: "build-succeeds"
     name: "Run Unit Tests"
     uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@main
@@ -30,7 +27,6 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-integration-tests:
-    if: false #Skipping whilst testing E2E test stage
     needs: "run-unit-tests"
     name: "Run Integration Tests"
     uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@main
@@ -38,7 +34,6 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-sonarqube-deep-analysis:
-    if: false #Skipping whilst testing E2E test stage
     needs: "run-integration-tests"
     name: "SonarQube Analysis"
     uses: markstanden/coding-standards/.github/workflows/sonarqube.yml@main
@@ -49,7 +44,7 @@ jobs:
     secrets: inherit
 
   build-frontend-release:
-    #needs: "run-sonarqube-deep-analysis"
+    needs: "run-sonarqube-deep-analysis"
     name: "Build Frontend Artifact"
     runs-on: "ubuntu-latest"
     steps:
