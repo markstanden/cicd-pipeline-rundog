@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.Playwright.Xunit;
+using rundog.E2E.Tests.Constants;
 
 namespace rundog.E2E.Tests.Pages;
 
@@ -9,9 +10,9 @@ public class HomeTests : PageTest
     public async Task HasTitle()
     {
         // Arrange
-        const string expectedSubstring = "FAILINGTEST";
+        const string expectedSubstring = "Home";
         Regex expectedTitle = new(expectedSubstring);
-        const string pageUrl = "https://playwright.dev";
+        string pageUrl = BaseUrl.Value;
 
         // Act
         await Page.GotoAsync(pageUrl);
