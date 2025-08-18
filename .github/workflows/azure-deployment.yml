@@ -73,13 +73,13 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: "Restore dependencies"
-        run: dotnet restore rundog/rundog.csproj
+        run: dotnet restore src/rundog/rundog.csproj
 
       - name: "Build"
-        run: dotnet build rundog/rundog.csproj --no-restore --configuration Release
+        run: dotnet build src/rundog/rundog.csproj --no-restore --configuration Release
 
       - name: "Publish"
-        run: dotnet publish rundog/rundog.csproj --no-restore --configuration Release --output ./publish
+        run: dotnet publish src/rundog/rundog.csproj --no-restore --configuration Release --output ./publish
 
       - name: "Upload build artifacts"
         uses: actions/upload-artifact@v4
@@ -125,7 +125,7 @@ jobs:
     uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@4208390c823f2a3a53c96bd63c12871eaf90461d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-      test-project-path: "rundog.E2E.Tests"
+      test-project-path: "tests/rundog.E2E.Tests"
       base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
 
   production-frontend-deploy:
