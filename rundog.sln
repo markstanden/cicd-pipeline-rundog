@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # 
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rundog", "rundog\rundog.csproj", "{04BA7F93-5EF6-4984-ADB3-28E7EBF5B521}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rundog", "src\rundog\rundog.csproj", "{04BA7F93-5EF6-4984-ADB3-28E7EBF5B521}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rundog.E2E.Tests", "rundog.E2E.Tests\rundog.E2E.Tests.csproj", "{14F2AF26-C75F-4B32-8B1E-23FD40E1D38F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rundog.E2E.Tests", "tests\rundog.E2E.Tests\rundog.E2E.Tests.csproj", "{14F2AF26-C75F-4B32-8B1E-23FD40E1D38F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
