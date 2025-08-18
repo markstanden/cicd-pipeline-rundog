@@ -42,7 +42,8 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
       sonar-organization: ${{ vars.SONAR_ORGANIZATION }}
-    secrets: inherit
+    secrets:
+      SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-frontend-release:
     needs: "run-sonarqube-deep-analysis"
