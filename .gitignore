@@ -67,3 +67,10 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 # Intentionally track .terraform.lock.hcl for provider pinning
+
+# Playwright
+**/.playwright/
+**/test-results/
+**/playwright-report/
+**/playwright/.cache/
+playwright.config.ts.backup
