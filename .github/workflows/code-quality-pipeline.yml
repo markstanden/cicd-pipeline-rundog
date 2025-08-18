@@ -5,6 +5,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+
 jobs:
   check-formatting:
     name: "Code Formatting Compliance Check"
