@@ -43,7 +43,7 @@ jobs:
       sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
       sonar-organization: ${{ vars.SONAR_ORGANIZATION }}
     secrets:
-      SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build-frontend-release:
     needs: "run-sonarqube-deep-analysis"
