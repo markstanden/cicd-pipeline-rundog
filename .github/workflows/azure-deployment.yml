@@ -52,6 +52,9 @@ jobs:
     needs: "run-sonarqube-deep-analysis"
     name: "Build Frontend Artifact"
     runs-on: "ubuntu-latest"
+    permissions:
+      contents: read
+      actions: write  # needed to save caches
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
