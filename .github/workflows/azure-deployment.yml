@@ -83,6 +83,8 @@ jobs:
     name: "Deploy Frontend to staging"
     runs-on: "ubuntu-latest"
     environment: "staging"
+    outputs:
+      staging-url: ${{ steps.deploy.outputs.static_web_app_url }}
     concurrency:
       group: staging-swa-deploy
       cancel-in-progress: true
@@ -112,6 +114,7 @@ jobs:
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-project-path: "rundog.E2E.Tests"
+      base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
 
   production-frontend-deploy:
     needs: "run-e2e-tests"
