@@ -11,8 +11,8 @@ variable "azure_region" {
     code     = string
   })
   default = {
-    location = "UK South",
-    code     = "uks"
+    location = "West Europe",
+    code     = "euw"
   }
 }
 
