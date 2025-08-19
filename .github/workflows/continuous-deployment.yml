@@ -12,7 +12,6 @@ jobs:
   check-formatting:
     name: "Code Formatting Compliance Check"
     uses: markstanden/coding-standards/.github/workflows/format.yml@b0cc6ab34adfbaf69727c704ffa98f34198b1aa2
-
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
@@ -48,18 +47,34 @@ jobs:
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  build-infrastructure:
+  build-staging-infrastructure:
     needs: "run-sonarqube-deep-analysis"
-    name: "Build Infrastructure"
+    name: "Build Staging Environment Infrastructure"
     uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@b0cc6ab34adfbaf69727c704ffa98f34198b1aa2
     with:
       opentofu-version: "1.10.5"
       infrastructure-directory: "./infrastructure"
+      environment: "staging"
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-
+    outputs:
+      static-web-app-api-token: ${{ jobs.build-staging-infrastructure.outputs.azure-static-web-app-api-token }}
+  
+  build-production-infrastructure:
+    needs: "run-sonarqube-deep-analysis"
+    name: "Build Production Environment Infrastructure"
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@b0cc6ab34adfbaf69727c704ffa98f34198b1aa2
+    with:
+      opentofu-version: "1.10.5"
+      infrastructure-directory: "./infrastructure"
+      environment: "production"
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+    outputs:
+      static-web-app-api-token: ${{ jobs.build-production-infrastructure.outputs.azure-static-web-app-api-token }}
+  
   build-frontend-release:
-    needs: "build-infrastructure"
+    needs: "build-staging-infrastructure"
     name: "Build Frontend Artifact"
     runs-on: "ubuntu-latest"
     permissions:
@@ -100,7 +115,7 @@ jobs:
           retention-days: 30
 
   staging-frontend-deploy:
-    needs: "build-frontend-release"
+    needs: [ "build-frontend-release", "build-staging-infrastructure" ]
     name: "Deploy Frontend to staging"
     runs-on: "ubuntu-latest"
     environment: "staging"
@@ -120,7 +135,7 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         id: staging_deploy
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          azure_static_web_apps_api_token: ${{ needs.build-staging-infrastructure.outputs.static-web-app-api-token }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "publish/wwwroot"
@@ -139,7 +154,7 @@ jobs:
       base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
 
   production-frontend-deploy:
-    needs: "run-e2e-tests"
+    needs: [ "run-e2e-tests", "build-production-infrastructure" ]
     name: "Deploy Frontend to production"
     runs-on: "ubuntu-latest"
     environment: "production"
@@ -157,7 +172,7 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         id: production_deploy
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          azure_static_web_apps_api_token: ${{ needs.build-production-infrastructure.outputs.static-web-app-api-token }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "publish/wwwroot"
