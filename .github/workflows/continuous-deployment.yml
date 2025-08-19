@@ -1,4 +1,4 @@
-name: "Azure CI/CD Deployment"
+name: "Continuous Deployment"
 
 on:
   workflow_dispatch:
