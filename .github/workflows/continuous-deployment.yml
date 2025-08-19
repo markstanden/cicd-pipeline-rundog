@@ -70,6 +70,7 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
   
   build-frontend-release:
+    needs: "run-sonarqube-deep-analysis"
     name: "Build Frontend Artifact"
     runs-on: "ubuntu-latest"
     permissions:
