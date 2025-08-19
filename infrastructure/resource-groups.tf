@@ -3,6 +3,6 @@ resource "azurerm_resource_group" "main" {
   location = var.azure_region.location
   tags = merge(var.app_tags, {
     Environment = terraform.workspace
-    Workspace = terraform.workspace
+    Workspace   = terraform.workspace
   })
 }

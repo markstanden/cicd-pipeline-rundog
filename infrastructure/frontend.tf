@@ -6,7 +6,7 @@ resource "azurerm_static_web_app" "main" {
   sku_size            = var.swa_sku.size
   tags = merge(var.app_tags, {
     Environment = terraform.workspace
-    Workspace = terraform.workspace
+    Workspace   = terraform.workspace
   })
 }
 

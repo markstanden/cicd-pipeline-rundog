@@ -7,9 +7,9 @@ variable "app_code" {
 variable "azure_region" {
   description = "Azure region"
   type        = map(string)
-  default     = {
-    location: "UK South",
-    code: "uks"
+  default = {
+    location = "UK South",
+    code     = "uks"
   }
 }
 
@@ -17,16 +17,16 @@ variable "app_tags" {
   description = "Tags to apply to all resources"
   type        = map(string)
   default = {
-    Project     = "rundog.dev"
-    ManagedBy   = "opentofu"
+    Project   = "rundog.dev"
+    ManagedBy = "opentofu"
   }
 }
 
 variable "swa_sku" {
   description = "SKU tier for the static web app"
   type        = map(string)
-  default     = {
-    tier: "Free",
-    size: "Free"
+  default = {
+    tier = "Free",
+    size = "Free"
   }
 }
