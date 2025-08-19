@@ -115,6 +115,9 @@ jobs:
     name: "Deploy Frontend to staging"
     runs-on: "ubuntu-latest"
     environment: "staging"
+    permissions:
+      contents: read
+      actions: read
     outputs:
       staging-url: ${{ steps.staging_deploy.outputs.static_web_app_url }}
     concurrency:
@@ -153,6 +156,9 @@ jobs:
     name: "Deploy Frontend to production"
     runs-on: "ubuntu-latest"
     environment: "production"
+    permissions:
+      contents: read
+      actions: read
     concurrency:
       group: "production-swa-deploy"
       cancel-in-progress: true
