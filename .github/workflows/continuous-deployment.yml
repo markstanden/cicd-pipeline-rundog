@@ -159,6 +159,8 @@ jobs:
     permissions:
       contents: read
       actions: read
+    outputs:
+      production-url: ${{ steps.production_deploy.outputs.static_web_app_url }}
     concurrency:
       group: "production-swa-deploy"
       cancel-in-progress: true
@@ -180,3 +182,12 @@ jobs:
           output_location: ""
           skip_app_build: true
           is_static_export: true
+  
+  run-healthcheck:
+    needs: "production-frontend-deploy"
+    name: "Run Production Healthcheck"
+    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@030604cbc9430b45c5ccbf431bd4448b2db0095b
+    with:
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
+      test-project-path: "tests/rundog.E2E.Tests"
+      base-url: ${{ needs.production-frontend-deploy.outputs.production-url }}
