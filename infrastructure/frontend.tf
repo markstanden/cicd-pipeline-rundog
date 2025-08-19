@@ -1,4 +1,4 @@
-resource "azurerm_static_site" "main" {
+resource "azurerm_static_web_app" "main" {
   name                = "${var.static_web_app}-${var.app_code}-${terraform.workspace}-${var.azure_region.code}"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
@@ -8,4 +8,10 @@ resource "azurerm_static_site" "main" {
     Environment = terraform.workspace
     Workspace = terraform.workspace
   })
+}
+
+output "azure_static_web_app_api_token" {
+  description = "Azure Static Web App API deployment token"
+  value       = azurerm_static_web_app.main.api_key
+  sensitive   = true
 }
