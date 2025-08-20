@@ -34,7 +34,7 @@ jobs:
     name: "Build Development Environment Infrastructure"
     uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@main
     with:
-      opentofu-version: "1.10.5"
+      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
       environment: "development"
       project-name: "rundog"
@@ -48,7 +48,7 @@ jobs:
     name: "Build Staging Environment Infrastructure"
     uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@main
     with:
-      opentofu-version: "1.10.5"
+      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
       environment: "staging"
       project-name: "rundog"
@@ -62,7 +62,7 @@ jobs:
     name: "Build Production Environment Infrastructure"
     uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@main
     with:
-      opentofu-version: "1.10.5"
+      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
       environment: "production"
       project-name: "rundog"
