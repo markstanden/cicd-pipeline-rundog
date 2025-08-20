@@ -106,10 +106,18 @@ jobs:
       group: staging-swa-deploy
       cancel-in-progress: true
     steps:
+      - name: "Raw Inspect Infrastructure Outputs"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const outputs = ${{ toJSON(needs.build-staging-infrastructure.outputs) }};
+            console.log('Raw tofu-outputs from needs context:', outputs['tofu-outputs']);
+
       - name: "Parse Infrastructure Outputs"
         id: parse_staging_outputs
         run: |
-          echo "token=${{ fromJSON(needs.build-staging-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}" >> $GITHUB_OUTPUT
+          # echo "token=${{ fromJSON(needs.build-staging-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}" >> $GITHUB_OUTPUT
+          echo "Temporarily disabled to allow inspection."
 
       - name: "Debug Staging Outputs"
         run: |
@@ -158,10 +166,18 @@ jobs:
       group: "production-swa-deploy"
       cancel-in-progress: true
     steps:
+      - name: "Raw Inspect Infrastructure Outputs"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const outputs = ${{ toJSON(needs.build-production-infrastructure.outputs) }};
+            console.log('Raw tofu-outputs from needs context:', outputs['tofu-outputs']);
+
       - name: "Parse Infrastructure Outputs"
         id: parse_production_outputs
         run: |
-          echo "token=${{ fromJSON(needs.build-production-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}" >> $GITHUB_OUTPUT
+          # echo "token=${{ fromJSON(needs.build-production-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}" >> $GITHUB_OUTPUT
+          echo "Temporarily disabled to allow inspection."
 
       - name: "Debug Production Outputs"
         run: |
