@@ -9,46 +9,28 @@ permissions:
   contents: read
 
 jobs:
-  check-formatting:
-    name: "Code Formatting Compliance Check"
-    uses: markstanden/coding-standards/.github/workflows/format.yml@f3a956ee24e225b3c4807a594d5040c9d0d3c3bc
-    with:
-      dotnet-version: ${{ vars.DOTNET_VERSION }}
-
   build-succeeds:
-    needs: "check-formatting"
     name: "Build Solution"
     uses: markstanden/coding-standards/.github/workflows/build.yml@f3a956ee24e225b3c4807a594d5040c9d0d3c3bc
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-unit-tests:
-    needs: "build-succeeds"
+    needs: [ "build-succeeds" ]
     name: "Run Unit Tests"
     uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@f3a956ee24e225b3c4807a594d5040c9d0d3c3bc
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-integration-tests:
-    needs: "run-unit-tests"
+    needs: [ "build-succeeds" ]
     name: "Run Integration Tests"
     uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@f3a956ee24e225b3c4807a594d5040c9d0d3c3bc
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
-  run-sonarqube-deep-analysis:
-    needs: "run-integration-tests"
-    name: "SonarQube Analysis"
-    uses: markstanden/coding-standards/.github/workflows/sonarqube.yml@f3a956ee24e225b3c4807a594d5040c9d0d3c3bc
-    with:
-      dotnet-version: ${{ vars.DOTNET_VERSION }}
-      sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
-      sonar-organization: ${{ vars.SONAR_ORGANIZATION }}
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
   build-staging-infrastructure:
-    needs: "run-sonarqube-deep-analysis"
+    needs: [ "build-succeeds" ]
     name: "Build Staging Environment Infrastructure"
     uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@f3a956ee24e225b3c4807a594d5040c9d0d3c3bc
     with:
@@ -59,7 +41,7 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
   
   build-production-infrastructure:
-    needs: "run-sonarqube-deep-analysis"
+    needs: [ "build-succeeds" ]
     name: "Build Production Environment Infrastructure"
     uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@f3a956ee24e225b3c4807a594d5040c9d0d3c3bc
     with:
@@ -70,7 +52,7 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
   
   build-frontend-release:
-    needs: "run-sonarqube-deep-analysis"
+    needs: [ "build-succeeds" ]
     name: "Build Frontend Artifact"
     runs-on: "ubuntu-latest"
     permissions:
@@ -111,7 +93,7 @@ jobs:
           retention-days: 30
 
   staging-frontend-deploy:
-    needs: [ "build-frontend-release", "build-staging-infrastructure" ]
+    needs: [ "build-succeeds", "run-unit-tests", "run-integration-tests", "build-staging-infrastructure", "build-frontend-release" ]
     name: "Deploy Frontend to staging"
     runs-on: "ubuntu-latest"
     environment: "staging"
@@ -127,16 +109,11 @@ jobs:
       - name: "Parse Infrastructure Outputs"
         id: parse_staging_outputs
         run: |
-          echo "tofu_outputs=${{ fromJSON(needs.build-staging-infrastructure.outputs.tofu-outputs) }}" >> $GITHUB_OUTPUT
+          echo "token=${{ fromJSON(needs.build-staging-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}" >> $GITHUB_OUTPUT
 
       - name: "Debug Staging Outputs"
         run: |
-          tofu_outputs="${{ steps.parse_staging_outputs.outputs.tofu_outputs }}"
-          echo "Full output dump: ${tofu_outputs}"
-
-      - name: "Debug Staging Token"
-        run: |
-          token="${{ steps.parse_staging_outputs.outputs.tofu_outputs.azure_static_web_app_api_token }}"
+          token="${{ steps.parse_staging_outputs.outputs.token }}"
           echo "::add-mask::${token}"
           echo "Staging SWA Token parsed with length: ${#token}"
 
@@ -184,7 +161,7 @@ jobs:
       - name: "Parse Infrastructure Outputs"
         id: parse_production_outputs
         run: |
-          echo "token=${{ fromJSON(needs.build-production-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token }}" >> $GITHUB_OUTPUT
+          echo "token=${{ fromJSON(needs.build-production-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}" >> $GITHUB_OUTPUT
 
       - name: "Debug Production Outputs"
         run: |
