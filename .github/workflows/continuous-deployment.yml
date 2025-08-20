@@ -134,7 +134,7 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         id: staging_deploy
         with:
-          azure_static_web_apps_api_token: ${{ needs.build-staging-infrastructure.outputs.azure-static-web-app-api-token }}
+          azure_static_web_apps_api_token: ${{ fromJSON(needs.build-staging-infrastructure.outputs.tofu-outputs)['azure_static_web_app_api_token'] }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "publish/wwwroot"
@@ -175,7 +175,7 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         id: production_deploy
         with:
-          azure_static_web_apps_api_token: ${{ needs.build-production-infrastructure.outputs.azure-static-web-app-api-token }}
+          azure_static_web_apps_api_token: ${{ fromJSON(needs.build-production-infrastructure.outputs.tofu-outputs)['azure_static_web_app_api_token'] }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "publish/wwwroot"
