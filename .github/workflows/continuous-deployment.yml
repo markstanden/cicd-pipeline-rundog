@@ -129,7 +129,21 @@ jobs:
       - name: "Parse Infrastructure Outputs"
         id: parse_staging_outputs
         run: |
-          echo "token=${{ fromJSON(needs.build-staging-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}" >> $GITHUB_OUTPUT
+          cat > tofu_outputs.json <<'JSON'
+          ${{ needs.build-staging-infrastructure.outputs.tofu-outputs }}
+          JSON
+          if ! jq -e . tofu_outputs.json > /dev/null; then
+            echo "tofu-outputs is not valid JSON or is empty."
+            sed -n '1,200p' tofu_outputs.json || true
+            exit 1
+          fi
+          token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
+          if [ -z "$token" ]; then
+            echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
+            jq . tofu_outputs.json || true
+            exit 1
+          fi
+          echo "token=${token}" >> $GITHUB_OUTPUT
 
       - name: "Debug Staging Outputs"
         run: |
@@ -181,7 +195,21 @@ jobs:
       - name: "Parse Infrastructure Outputs"
         id: parse_production_outputs
         run: |
-          echo "token=${{ fromJSON(needs.build-production-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}" >> $GITHUB_OUTPUT
+          cat > tofu_outputs.json <<'JSON'
+          ${{ needs.build-production-infrastructure.outputs.tofu-outputs }}
+          JSON
+          if ! jq -e . tofu_outputs.json > /dev/null; then
+            echo "tofu-outputs is not valid JSON or is empty."
+            sed -n '1,200p' tofu_outputs.json || true
+            exit 1
+          fi
+          token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
+          if [ -z "$token" ]; then
+            echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
+            jq . tofu_outputs.json || true
+            exit 1
+          fi
+          echo "token=${token}" >> $GITHUB_OUTPUT
 
       - name: "Debug Production Outputs"
         run: |
