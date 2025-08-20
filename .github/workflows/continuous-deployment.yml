@@ -129,9 +129,7 @@ jobs:
       - name: "Parse Infrastructure Outputs"
         id: parse_staging_outputs
         run: |
-          cat > tofu_outputs.json <<'JSON'
-          ${{ needs.build-staging-infrastructure.outputs.tofu-outputs }}
-          JSON
+          printf '%s' '${{ needs.build-staging-infrastructure.outputs.tofu-outputs-b64 }}' | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
           if ! jq -e . tofu_outputs.json > /dev/null; then
             echo "tofu-outputs is not valid JSON or is empty."
             sed -n '1,200p' tofu_outputs.json || true
@@ -195,9 +193,7 @@ jobs:
       - name: "Parse Infrastructure Outputs"
         id: parse_production_outputs
         run: |
-          cat > tofu_outputs.json <<'JSON'
-          ${{ needs.build-production-infrastructure.outputs.tofu-outputs }}
-          JSON
+          printf '%s' '${{ needs.build-production-infrastructure.outputs.tofu-outputs-b64 }}' | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
           if ! jq -e . tofu_outputs.json > /dev/null; then
             echo "tofu-outputs is not valid JSON or is empty."
             sed -n '1,200p' tofu_outputs.json || true
