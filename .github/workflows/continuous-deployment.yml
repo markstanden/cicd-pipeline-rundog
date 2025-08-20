@@ -124,6 +124,17 @@ jobs:
       group: staging-swa-deploy
       cancel-in-progress: true
     steps:
+      - name: "Parse Infrastructure Outputs"
+        id: parse_staging_outputs
+        run: |
+          echo "token=${{ fromJSON(needs.build-staging-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}" >> $GITHUB_OUTPUT
+
+      - name: "Debug Staging Outputs"
+        run: |
+          token="${{ steps.parse_staging_outputs.outputs.token }}"
+          echo "::add-mask::${token}"
+          echo "Staging SWA Token parsed with length: ${#token}"
+
       - name: "Download build artifacts"
         uses: actions/download-artifact@v4
         with:
@@ -134,7 +145,7 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         id: staging_deploy
         with:
-          azure_static_web_apps_api_token: ${{ fromJSON(needs.build-staging-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}
+          azure_static_web_apps_api_token: ${{ steps.parse_staging_outputs.outputs.token }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "publish/wwwroot"
@@ -165,6 +176,17 @@ jobs:
       group: "production-swa-deploy"
       cancel-in-progress: true
     steps:
+      - name: "Parse Infrastructure Outputs"
+        id: parse_production_outputs
+        run: |
+          echo "token=${{ fromJSON(needs.build-production-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}" >> $GITHUB_OUTPUT
+
+      - name: "Debug Production Outputs"
+        run: |
+          token="${{ steps.parse_production_outputs.outputs.token }}"
+          echo "::add-mask::${token}"
+          echo "Production SWA Token parsed with length: ${#token}"
+
       - name: "Download build artifacts"
         uses: actions/download-artifact@v4
         with:
@@ -175,7 +197,7 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         id: production_deploy
         with:
-          azure_static_web_apps_api_token: ${{ fromJSON(needs.build-production-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}
+          azure_static_web_apps_api_token: ${{ steps.parse_production_outputs.outputs.token }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "publish/wwwroot"
