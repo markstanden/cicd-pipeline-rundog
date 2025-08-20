@@ -50,7 +50,7 @@ jobs:
   build-staging-infrastructure:
     needs: "run-sonarqube-deep-analysis"
     name: "Build Staging Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@4071e637f74bc7a912d204a1f9ef45db8cd01d45
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@main
     with:
       opentofu-version: "1.10.5"
       infrastructure-directory: "./infrastructure"
@@ -61,7 +61,7 @@ jobs:
   build-production-infrastructure:
     needs: "run-sonarqube-deep-analysis"
     name: "Build Production Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@4071e637f74bc7a912d204a1f9ef45db8cd01d45
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@main
     with:
       opentofu-version: "1.10.5"
       infrastructure-directory: "./infrastructure"
@@ -127,7 +127,7 @@ jobs:
       - name: "Parse Infrastructure Outputs"
         id: parse_staging_outputs
         run: |
-          echo "token=${{ fromJSON(needs.build-staging-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}" >> $GITHUB_OUTPUT
+          echo "token=${{ fromJSON(needs.build-staging-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token }}" >> $GITHUB_OUTPUT
 
       - name: "Debug Staging Outputs"
         run: |
@@ -179,7 +179,7 @@ jobs:
       - name: "Parse Infrastructure Outputs"
         id: parse_production_outputs
         run: |
-          echo "token=${{ fromJSON(needs.build-production-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token.value }}" >> $GITHUB_OUTPUT
+          echo "token=${{ fromJSON(needs.build-production-infrastructure.outputs.tofu-outputs).azure_static_web_app_api_token }}" >> $GITHUB_OUTPUT
 
       - name: "Debug Production Outputs"
         run: |
