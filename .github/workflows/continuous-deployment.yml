@@ -228,8 +228,7 @@ jobs:
     needs: [ "run-e2e-tests", "production-frontend-deploy" ]
     if: >
       needs.run-e2e-tests.result == 'success' &&
-      needs.production-frontend-deploy.result == 'success' &&
-      github.ref == 'refs/heads/main'
+      needs.production-frontend-deploy.result == 'success'
     name: "Auto Destroy Staging Environment"
     uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
