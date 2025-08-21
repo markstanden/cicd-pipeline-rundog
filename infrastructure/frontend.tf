@@ -11,7 +11,7 @@ resource "azurerm_static_web_app" "main" {
   })
   
   app_settings = {
-    ENVIRONMENT = terraform.workspace
+    BUILD_ENVIRONMENT = terraform.workspace
   }
 }
 
