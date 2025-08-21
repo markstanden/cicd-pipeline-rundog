@@ -1,9 +1,10 @@
 using System.Text.RegularExpressions;
 using Microsoft.Playwright.Xunit;
-using rundog.E2E.Tests.Constants;
+using Rundog.AcceptanceTests.Constants;
 
-namespace rundog.E2E.Tests.Pages;
+namespace Rundog.AcceptanceTests.Pages;
 
+[Trait("Environment", "Production")]
 public class HomeTests : PageTest
 {
     [Fact]
