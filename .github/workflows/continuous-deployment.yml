@@ -9,68 +9,56 @@ permissions:
   contents: read
 
 jobs:
-  check-formatting:
-    name: "Code Formatting Compliance Check"
-    uses: markstanden/coding-standards/.github/workflows/format.yml@030604cbc9430b45c5ccbf431bd4448b2db0095b
-    with:
-      dotnet-version: ${{ vars.DOTNET_VERSION }}
-
   build-succeeds:
-    needs: "check-formatting"
     name: "Build Solution"
-    uses: markstanden/coding-standards/.github/workflows/build.yml@030604cbc9430b45c5ccbf431bd4448b2db0095b
+    uses: markstanden/coding-standards/.github/workflows/build.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-unit-tests:
-    needs: "build-succeeds"
+    needs: [ "build-succeeds" ]
     name: "Run Unit Tests"
-    uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@030604cbc9430b45c5ccbf431bd4448b2db0095b
+    uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-integration-tests:
-    needs: "run-unit-tests"
+    needs: [ "build-succeeds" ]
     name: "Run Integration Tests"
-    uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@030604cbc9430b45c5ccbf431bd4448b2db0095b
+    uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-
-  run-sonarqube-deep-analysis:
-    needs: "run-integration-tests"
-    name: "SonarQube Analysis"
-    uses: markstanden/coding-standards/.github/workflows/sonarqube.yml@030604cbc9430b45c5ccbf431bd4448b2db0095b
-    with:
-      dotnet-version: ${{ vars.DOTNET_VERSION }}
-      sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
-      sonar-organization: ${{ vars.SONAR_ORGANIZATION }}
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build-staging-infrastructure:
-    needs: "run-sonarqube-deep-analysis"
+    needs: [ "build-succeeds" ]
     name: "Build Staging Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@030604cbc9430b45c5ccbf431bd4448b2db0095b
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
-      opentofu-version: "1.10.5"
+      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
       environment: "staging"
+      project-name: "rundog"
+      backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
+      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
   
   build-production-infrastructure:
-    needs: "run-sonarqube-deep-analysis"
+    needs: [ "build-succeeds" ]
     name: "Build Production Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@030604cbc9430b45c5ccbf431bd4448b2db0095b
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
-      opentofu-version: "1.10.5"
+      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
       environment: "production"
+      project-name: "rundog"
+      backend-resource-group-name: ${{ vars.BACKEND_RG_PROD }}
+      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_PROD }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
   
   build-frontend-release:
-    needs: "run-sonarqube-deep-analysis"
+    needs: [ "build-succeeds" ]
     name: "Build Frontend Artifact"
     runs-on: "ubuntu-latest"
     permissions:
@@ -111,7 +99,7 @@ jobs:
           retention-days: 30
 
   staging-frontend-deploy:
-    needs: [ "build-frontend-release", "build-staging-infrastructure" ]
+    needs: [ "build-succeeds", "run-unit-tests", "run-integration-tests", "build-staging-infrastructure", "build-frontend-release" ]
     name: "Deploy Frontend to staging"
     runs-on: "ubuntu-latest"
     environment: "staging"
@@ -124,6 +112,29 @@ jobs:
       group: staging-swa-deploy
       cancel-in-progress: true
     steps:
+      - name: "Parse Infrastructure Outputs"
+        id: parse_staging_outputs
+        env:
+          TOFU_OUTPUTS_B64: ${{ needs.build-staging-infrastructure.outputs['tofu-outputs-b64'] }}
+        run: |
+          set -euo pipefail
+          # Mask the raw base64 payload so it never appears in the logs
+          echo "::add-mask::${TOFU_OUTPUTS_B64}"
+          # Decode into JSON file for parsing
+          printf '%s' "${TOFU_OUTPUTS_B64}" | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
+          if ! jq -e . tofu_outputs.json > /dev/null; then
+            echo "tofu-outputs is not valid JSON or is empty."
+            exit 1
+          fi
+          token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
+          if [ -z "$token" ]; then
+            echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
+            echo "Available top-level keys:"
+            jq -r 'paths | select(length==1) | join(".")' tofu_outputs.json || true
+            exit 1
+          fi
+          echo "::add-mask::${token}"
+          echo "token=${token}" >> $GITHUB_OUTPUT
       - name: "Download build artifacts"
         uses: actions/download-artifact@v4
         with:
@@ -134,7 +145,7 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         id: staging_deploy
         with:
-          azure_static_web_apps_api_token: ${{ needs.build-staging-infrastructure.outputs.azure-static-web-app-api-token }}
+          azure_static_web_apps_api_token: ${{ steps.parse_staging_outputs.outputs.token }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "publish/wwwroot"
@@ -145,7 +156,7 @@ jobs:
   run-e2e-tests:
     needs: "staging-frontend-deploy"
     name: "Run End-to-End Tests"
-    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@030604cbc9430b45c5ccbf431bd4448b2db0095b
+    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-project-path: "tests/rundog.E2E.Tests"
@@ -165,6 +176,33 @@ jobs:
       group: "production-swa-deploy"
       cancel-in-progress: true
     steps:
+      - name: "Parse Infrastructure Outputs"
+        id: parse_production_outputs
+        env:
+          TOFU_OUTPUTS_B64: ${{ needs.build-production-infrastructure.outputs['tofu-outputs-b64'] }}
+        run: |
+          set -euo pipefail
+          echo "::add-mask::${TOFU_OUTPUTS_B64}"
+          printf '%s' "${TOFU_OUTPUTS_B64}" | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
+          if ! jq -e . tofu_outputs.json > /dev/null; then
+            echo "tofu-outputs is not valid JSON or is empty."
+            exit 1
+          fi
+          token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
+          if [ -z "$token" ]; then
+            echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
+            echo "Available top-level keys:"
+            jq -r 'paths | select(length==1) | join(".")' tofu_outputs.json || true
+            exit 1
+          fi
+          echo "::add-mask::${token}"
+          echo "token=${token}" >> $GITHUB_OUTPUT
+      - name: "Debug Production Outputs"
+        run: |
+          token="${{ steps.parse_production_outputs.outputs.token }}"
+          echo "::add-mask::${token}"
+          echo "Production SWA Token parsed with length: ${#token}"
+
       - name: "Download build artifacts"
         uses: actions/download-artifact@v4
         with:
@@ -175,7 +213,7 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         id: production_deploy
         with:
-          azure_static_web_apps_api_token: ${{ needs.build-production-infrastructure.outputs.azure-static-web-app-api-token }}
+          azure_static_web_apps_api_token: ${{ steps.parse_production_outputs.outputs.token }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "publish/wwwroot"
@@ -186,8 +224,25 @@ jobs:
   run-healthcheck:
     needs: "production-frontend-deploy"
     name: "Run Production Healthcheck"
-    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@030604cbc9430b45c5ccbf431bd4448b2db0095b
+    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-project-path: "tests/rundog.E2E.Tests"
       base-url: ${{ needs.production-frontend-deploy.outputs.production-url }}
+
+  auto-destroy-staging:
+    needs: [ "run-e2e-tests", "production-frontend-deploy" ]
+    if: >
+      needs.run-e2e-tests.result == 'success' &&
+      needs.production-frontend-deploy.result == 'success'
+    name: "Auto Destroy Staging Environment"
+    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    with:
+      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
+      infrastructure-directory: "./infrastructure"
+      environment: "staging"
+      project-name: "rundog"
+      backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
+      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
