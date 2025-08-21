@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.Playwright.Xunit;
-using Rundog.AcceptanceTests.Constants;
+using Rundog.Core.EnvironmentVariables;
 
 namespace Rundog.AcceptanceTests.Pages;
 

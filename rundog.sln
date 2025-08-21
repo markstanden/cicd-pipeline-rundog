@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 #
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rundog.Web", "src\Rundog.Web\Rundog.Web.csproj", "{04BA7F93-5EF6-4984-ADB3-28E7EBF5B521}"

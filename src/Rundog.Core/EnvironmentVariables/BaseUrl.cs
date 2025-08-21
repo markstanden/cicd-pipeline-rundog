@@ -1,4 +1,4 @@
-namespace Rundog.AcceptanceTests.Constants;
+namespace Rundog.Core.EnvironmentVariables;
 
 public static class BaseUrl
 {
