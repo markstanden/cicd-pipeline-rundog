@@ -1,5 +1,4 @@
-﻿@using Rundog.Core.EnvironmentVariables
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
 <div class="page">
     <main>
         <header class="top-row px-4">
@@ -8,17 +7,6 @@
         <article class="content px-4">
             @Body
         </article>
-        <footer class="px-2 py-2 border-top text-muted display-flex justify-content-between align-items-center"
-                data-testid="footer">
-            @if (BuildEnvironment.Value != "Production")
-            {
-                <p class="p-0 m-0 text-start" data-testid="build-environment">
-                    <strong>Environment:</strong> @BuildEnvironment.Value
-                </p>
-            }
-            <p class="p-0 m-0 text-end" data-testid="copyright">
-                &copy; 2025 - rundog.dev
-            </p>
-        </footer>
+        <Footer></Footer>
     </main>
 </div>
