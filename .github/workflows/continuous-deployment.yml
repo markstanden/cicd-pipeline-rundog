@@ -68,6 +68,21 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v4
 
+      - name: "Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "src/Rundog.Web/package-lock.json"
+
+      - name: "Install npm dependencies"
+        working-directory: src/Rundog.Web
+        run: npm ci
+
+      - name: "Build CSS"
+        working-directory: src/Rundog.Web
+        run: npm run build-css:prod
+
       - name: "Setup .NET"
         uses: actions/setup-dotnet@v4
         with:
@@ -82,13 +97,13 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: "Restore dependencies"
-        run: dotnet restore src/rundog/rundog.csproj
+        run: dotnet restore src/Rundog.Web/Rundog.Web.csproj
 
       - name: "Build"
-        run: dotnet build src/rundog/rundog.csproj --no-restore --configuration Release
+        run: dotnet build src/Rundog.Web/Rundog.Web.csproj --no-restore --configuration Release
 
       - name: "Publish"
-        run: dotnet publish src/rundog/rundog.csproj --no-restore --configuration Release --output ./publish
+        run: dotnet publish src/Rundog.Web/Rundog.Web.csproj --no-restore --configuration Release --output ./publish
 
       - name: "Upload build artifacts"
         uses: actions/upload-artifact@v4
@@ -159,7 +174,7 @@ jobs:
     uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-      test-project-path: "tests/rundog.E2E.Tests"
+      test-project-path: "tests/Rundog.AcceptanceTests"
       base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
 
   production-frontend-deploy:
@@ -228,7 +243,7 @@ jobs:
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-name: "Production Deployment Healthcheck"
-      test-project-path: "tests/rundog.E2E.Tests"
+      test-project-path: "tests/Rundog.AcceptanceTests"
       base-url: ${{ needs.production-frontend-deploy.outputs.production-url }}
 
   auto-destroy-staging:
