@@ -1,7 +1,7 @@
 variable "app_code" {
   description = "Name of the application within the resource name"
   type        = string
-  default     = "rrd"
+  default     = "rdd"
 }
 
 variable "azure_region" {
