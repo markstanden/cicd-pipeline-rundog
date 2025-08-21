@@ -115,25 +115,21 @@ jobs:
       - name: "Parse Infrastructure Outputs"
         id: parse_staging_outputs
         run: |
-          printf '%s' '${{ needs.build-staging-infrastructure.outputs.tofu-outputs-b64 }}' | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
+          set -euo pipefail
+          printf '%s' '${{ needs.build-staging-infrastructure.outputs['tofu-outputs-b64'] }}' | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
           if ! jq -e . tofu_outputs.json > /dev/null; then
             echo "tofu-outputs is not valid JSON or is empty."
-            sed -n '1,200p' tofu_outputs.json || true
             exit 1
           fi
           token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
           if [ -z "$token" ]; then
             echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
-            jq . tofu_outputs.json || true
+            echo "Available top-level keys:"
+            jq -r 'paths | select(length==1) | join(".")' tofu_outputs.json || true
             exit 1
           fi
-          echo "token=${token}" >> $GITHUB_OUTPUT
-
-      - name: "Debug Staging Outputs"
-        run: |
-          token="${{ steps.parse_staging_outputs.outputs.token }}"
           echo "::add-mask::${token}"
-          echo "Staging SWA Token parsed with length: ${#token}"
+          echo "token=${token}" >> $GITHUB_OUTPUT
 
       - name: "Download build artifacts"
         uses: actions/download-artifact@v4
@@ -179,18 +175,20 @@ jobs:
       - name: "Parse Infrastructure Outputs"
         id: parse_production_outputs
         run: |
-          printf '%s' '${{ needs.build-production-infrastructure.outputs.tofu-outputs-b64 }}' | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
+          set -euo pipefail
+          printf '%s' '${{ needs.build-production-infrastructure.outputs['tofu-outputs-b64'] }}' | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
           if ! jq -e . tofu_outputs.json > /dev/null; then
             echo "tofu-outputs is not valid JSON or is empty."
-            sed -n '1,200p' tofu_outputs.json || true
             exit 1
           fi
           token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
           if [ -z "$token" ]; then
             echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
-            jq . tofu_outputs.json || true
+            echo "Available top-level keys:"
+            jq -r 'paths | select(length==1) | join(".")' tofu_outputs.json || true
             exit 1
           fi
+          echo "::add-mask::${token}"
           echo "token=${token}" >> $GITHUB_OUTPUT
 
       - name: "Debug Production Outputs"
