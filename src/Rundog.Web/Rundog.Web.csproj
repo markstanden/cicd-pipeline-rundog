@@ -28,4 +28,15 @@
         <ProjectReference Include="..\Rundog.Core\Rundog.Core.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Folder Include="wwwroot\css\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Update="Styles\site.css">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
+
 </Project>
