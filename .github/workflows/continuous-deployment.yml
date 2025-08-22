@@ -21,6 +21,7 @@ jobs:
     uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
+      test-filter: "FullyQualifiedName~Unit.Tests"
 
   run-integration-tests:
     needs: [ "build-succeeds" ]
@@ -28,6 +29,7 @@ jobs:
     uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
+      test-filter: "FullyQualifiedName~Integration.Tests"
 
   build-staging-infrastructure:
     needs: [ "build-succeeds" ]
@@ -133,8 +135,10 @@ jobs:
           TOFU_OUTPUTS_B64: ${{ needs.build-staging-infrastructure.outputs['tofu-outputs-b64'] }}
         run: |
           set -euo pipefail
+          
           # Mask the raw base64 payload so it never appears in the logs
           echo "::add-mask::${TOFU_OUTPUTS_B64}"
+          
           # Decode into JSON file for parsing
           printf '%s' "${TOFU_OUTPUTS_B64}" | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
           if ! jq -e . tofu_outputs.json > /dev/null; then
@@ -142,14 +146,16 @@ jobs:
             exit 1
           fi
           token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
+          
           if [ -z "$token" ]; then
             echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
             echo "Available top-level keys:"
             jq -r 'paths | select(length==1) | join(".")' tofu_outputs.json || true
             exit 1
           fi
-          echo "::add-mask::${token}"
+          
           echo "token=${token}" >> $GITHUB_OUTPUT
+
       - name: "Download build artifacts"
         uses: actions/download-artifact@v4
         with:
