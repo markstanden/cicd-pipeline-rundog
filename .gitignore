@@ -74,3 +74,6 @@ override.tf.json
 **/playwright-report/
 **/playwright/.cache/
 playwright.config.ts.backup
+
+# NPM/Node/Tailwind
+**/node_modules
