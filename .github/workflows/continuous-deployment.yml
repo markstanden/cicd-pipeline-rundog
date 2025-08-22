@@ -174,17 +174,17 @@ jobs:
           skip_app_build: true
           is_static_export: true
 
-  run-e2e-tests:
+  run-acceptance-tests:
     needs: "staging-frontend-deploy"
-    name: "Run End-to-End Tests"
+    name: "Run Acceptance Tests"
     uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-      test-project-path: "tests/Rundog.AcceptanceTests"
+      test-project-path: "tests/Rundog.Acceptance.Tests"
       base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
 
   production-frontend-deploy:
-    needs: [ "build-frontend-release", "run-e2e-tests", "build-production-infrastructure" ]
+    needs: [ "build-frontend-release", "run-acceptance-tests", "build-production-infrastructure" ]
     name: "Deploy Frontend to production"
     runs-on: "ubuntu-latest"
     environment: "production"
@@ -249,11 +249,12 @@ jobs:
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-name: "Production Deployment Healthcheck"
-      test-project-path: "tests/Rundog.AcceptanceTests"
+      test-project-path: "tests/Rundog.Acceptance.Tests"
+      test-filter: "Environment=Production"
       base-url: ${{ needs.production-frontend-deploy.outputs.production-url }}
 
   auto-destroy-staging:
-    needs: [ "run-e2e-tests", "production-frontend-deploy" ]
+    needs: [ "run-acceptance-tests", "production-frontend-deploy" ]
     if: >
       needs.run-e2e-tests.result == 'success' &&
       needs.production-frontend-deploy.result == 'success'
