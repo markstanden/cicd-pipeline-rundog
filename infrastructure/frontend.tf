@@ -9,10 +9,18 @@ resource "azurerm_static_web_app" "main" {
     Environment = terraform.workspace
     Workspace   = terraform.workspace
   })
-  
-  app_settings = {
-    BUILD_ENVIRONMENT = terraform.workspace
-  }
+}
+
+resource "azapi_resource" "appsettings" {
+  type      = "Microsoft.Web/staticSites/config@2024-11-01"
+  name      = "appsettings"
+  parent_id = azurerm_static_web_app.main.id
+
+  body = jsonencode({
+    properties = {
+      BUILD_ENVIRONMENT = terraform.workspace
+    }
+  })
 }
 
 output "azure_static_web_app_api_token" {
