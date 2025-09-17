@@ -1,6 +1,8 @@
 namespace Rundog.Core.EnvironmentVariables;
 
-/// <inheritdoc />
+/// <summary>
+///     A static utility class for retrieving and querying the current build environment.
+/// </summary>
 public static class BuildEnvironment
 {
     internal const string EnvironmentVariable = "BUILD_ENVIRONMENT";
