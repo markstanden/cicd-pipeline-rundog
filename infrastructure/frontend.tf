@@ -16,11 +16,11 @@ resource "azapi_update_resource" "appsettings" {
   name      = "appsettings"
   parent_id = azurerm_static_web_app.main.id
 
-  body = jsonencode({
+  body = {
     properties = {
       BUILD_ENVIRONMENT = terraform.workspace
     }
-  })
+  }
 }
 
 output "azure_static_web_app_api_token" {
