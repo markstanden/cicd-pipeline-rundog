@@ -4,7 +4,7 @@ resource "azurerm_static_web_app" "main" {
   location            = azurerm_resource_group.main.location
   sku_tier            = var.swa_sku.tier
   sku_size            = var.swa_sku.size
-  
+
   tags = merge(var.app_tags, {
     Environment = terraform.workspace
     Workspace   = terraform.workspace
