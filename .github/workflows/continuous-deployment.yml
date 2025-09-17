@@ -2,9 +2,9 @@
 name: "Continuous Deployment"
 
 "on":
-  workflow_dispatch: true
+  workflow_dispatch:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -17,7 +17,7 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-unit-tests:
-    needs: ["build-succeeds"]
+    needs: [ "build-succeeds" ]
     name: "Run Unit Tests"
     uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
@@ -25,7 +25,7 @@ jobs:
       test-filter: "FullyQualifiedName~Unit.Tests"
 
   run-integration-tests:
-    needs: ["build-succeeds"]
+    needs: [ "build-succeeds" ]
     name: "Run Integration Tests"
     uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
@@ -33,7 +33,7 @@ jobs:
       test-filter: "FullyQualifiedName~Integration.Tests"
 
   build-staging-infrastructure:
-    needs: ["build-succeeds"]
+    needs: [ "build-succeeds" ]
     name: "Build Staging Environment Infrastructure"
     uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
@@ -47,7 +47,7 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
   build-production-infrastructure:
-    needs: ["build-succeeds"]
+    needs: [ "build-succeeds" ]
     name: "Build Production Environment Infrastructure"
     uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
@@ -61,7 +61,7 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
   build-frontend-release:
-    needs: ["build-succeeds"]
+    needs: [ "build-succeeds" ]
     name: "Build Frontend Artifact"
     runs-on: "ubuntu-latest"
     permissions:
@@ -118,12 +118,12 @@ jobs:
 
   staging-frontend-deploy:
     needs: [
-        "build-succeeds",
-        "run-unit-tests",
-        "run-integration-tests",
-        "build-staging-infrastructure",
-        "build-frontend-release"
-      ]
+      "build-succeeds",
+      "run-unit-tests",
+      "run-integration-tests",
+      "build-staging-infrastructure",
+      "build-frontend-release"
+    ]
     name: "Deploy Frontend to staging"
     runs-on: "ubuntu-latest"
     environment: "staging"
@@ -196,7 +196,7 @@ jobs:
             ""
             "/manifest.json"
             "/_framework/blazor.webassembly.js"
-            "/css/app.css"
+            "/css/site.css"
             "/favicon.ico"
           )
 
@@ -210,7 +210,7 @@ jobs:
           echo "All staging endpoints are responding"
 
   run-acceptance-tests:
-    needs: ["run-staging-healthcheck", "staging-frontend-deploy"]
+    needs: [ "run-staging-healthcheck", "staging-frontend-deploy" ]
     name: "Run Acceptance Tests"
     uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
@@ -219,7 +219,7 @@ jobs:
       base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
 
   production-frontend-deploy:
-    needs: ["build-frontend-release", "run-acceptance-tests", "build-production-infrastructure"]
+    needs: [ "build-frontend-release", "run-acceptance-tests", "build-production-infrastructure" ]
     name: "Deploy Frontend to production"
     runs-on: "ubuntu-latest"
     environment: "production"
@@ -289,7 +289,7 @@ jobs:
       base-url: ${{ needs.production-frontend-deploy.outputs.production-url }}
 
   auto-destroy-staging:
-    needs: ["run-acceptance-tests", "production-frontend-deploy"]
+    needs: [ "run-acceptance-tests", "production-frontend-deploy" ]
     if: >
       needs.run-acceptance-tests.result == 'success' &&
       needs.production-frontend-deploy.result == 'success'
