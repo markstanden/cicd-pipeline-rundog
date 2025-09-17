@@ -12,7 +12,7 @@ public static class BuildEnvironment
     /// <summary>
     ///     Represents the current build environment value. Retrieves the value from the
     ///     environment variable "BUILD_ENVIRONMENT". If the environment variable is not set,
-    ///     it defaults to <see cref="DefaultLocalValue">DefaultLocalValue</see>: "Local".
+    ///     it defaults to <see cref="DefaultLocalValue">DefaultLocalValue</see>: Local.
     /// </summary>
     public static string Value
     {
