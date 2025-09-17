@@ -2,7 +2,7 @@
 <footer class="px-2 py-2 border-top text-muted display-flex flex-column align-items-center"
         data-testid="footer">
     <section class="d-flex align-items-center justify-content-between flex-row">
-        @if (BuildEnvironment.Value != "Production")
+        @if (!BuildEnvironment.IsProduction)
         {
             <p class="d-inline p-0 m-0" data-testid="build-environment">
                 <strong>Environment:</strong> @BuildEnvironment.Value

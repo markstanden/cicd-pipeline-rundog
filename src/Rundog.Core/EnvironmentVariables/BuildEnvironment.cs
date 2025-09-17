@@ -2,8 +2,9 @@ namespace Rundog.Core.EnvironmentVariables;
 
 public static class BuildEnvironment
 {
-    private const string EnvironmentVariable = "BUILD_ENVIRONMENT";
-    private const string DefaultLocalValue = "Local";
+    internal const string EnvironmentVariable = "BUILD_ENVIRONMENT";
+    internal const string DefaultLocalValue = "Local";
+    internal const string ProductionEnvName = "Production";
 
     /// <summary>
     ///     Represents the current build environment value. Retrieves the value from the
@@ -18,4 +19,10 @@ public static class BuildEnvironment
             return string.IsNullOrWhiteSpace(raw) ? DefaultLocalValue : raw.Trim();
         }
     }
+
+    /// <summary>
+    ///     Indicates whether the current build environment is considered a production environment.
+    /// </summary>
+    public static bool IsProduction =>
+        string.Equals(Value, ProductionEnvName, StringComparison.OrdinalIgnoreCase);
 }
