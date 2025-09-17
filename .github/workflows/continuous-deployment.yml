@@ -161,6 +161,7 @@ jobs:
             exit 1
           fi
 
+          echo "::add-mask::${token}"
           echo "token=${token}" >> $GITHUB_OUTPUT
 
       - name: "Download build artifacts"
@@ -245,7 +246,7 @@ jobs:
             exit 1
           fi
           token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
-          if [-z "$token"]; then
+          if [ -z "$token" ]; then
             echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
             echo "Available top-level keys:"
             jq -r 'paths | select(length==1) | join(".")' tofu_outputs.json || true

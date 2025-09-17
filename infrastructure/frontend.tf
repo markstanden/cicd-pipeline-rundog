@@ -11,7 +11,7 @@ resource "azurerm_static_web_app" "main" {
   })
 }
 
-resource "azapi_resource" "appsettings" {
+resource "azapi_update_resource" "appsettings" {
   type      = "Microsoft.Web/staticSites/config@2024-11-01"
   name      = "appsettings"
   parent_id = azurerm_static_web_app.main.id

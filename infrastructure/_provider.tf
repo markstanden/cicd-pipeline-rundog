@@ -7,7 +7,7 @@ terraform {
     }
     azapi = {
       source  = "registry.opentofu.org/Azure/azapi"
-      version = "~> 1.0"
+      version = "~> 2.0"
     }
   }
 }
