@@ -1,5 +1,6 @@
 namespace Rundog.Core.EnvironmentVariables;
 
+/// <inheritdoc />
 public static class BuildEnvironment
 {
     internal const string EnvironmentVariable = "BUILD_ENVIRONMENT";

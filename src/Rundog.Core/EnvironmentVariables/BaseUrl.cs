@@ -1,5 +1,6 @@
 namespace Rundog.Core.EnvironmentVariables;
 
+/// <inheritdoc />
 public static class BaseUrl
 {
     private const string BaseUrlEnvironmentVariable = "BASE_URL";
