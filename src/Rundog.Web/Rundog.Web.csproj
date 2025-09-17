@@ -6,11 +6,7 @@
         <Nullable>enable</Nullable>
         <RootNamespace>Rundog.Web</RootNamespace>
     </PropertyGroup>
-
-    <PropertyGroup>
-        <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-    </PropertyGroup>
-
+    
     <PropertyGroup Condition="'$(CI)' == 'true'">
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     </PropertyGroup>
