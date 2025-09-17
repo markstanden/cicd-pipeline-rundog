@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <RootNamespace>Rundog.Web</RootNamespace>
     </PropertyGroup>
-    
+
     <PropertyGroup Condition="'$(CI)' == 'true'">
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     </PropertyGroup>
@@ -21,12 +21,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="wwwroot\css\"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <Content Update="Styles\site.css">
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <TargetPath>wwwroot\css\site.css</TargetPath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
     </ItemGroup>
