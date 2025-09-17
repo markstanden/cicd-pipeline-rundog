@@ -4,9 +4,22 @@ resource "azurerm_static_web_app" "main" {
   location            = azurerm_resource_group.main.location
   sku_tier            = var.swa_sku.tier
   sku_size            = var.swa_sku.size
+  
   tags = merge(var.app_tags, {
     Environment = terraform.workspace
     Workspace   = terraform.workspace
+  })
+}
+
+resource "azapi_update_resource" "appsettings" {
+  type      = "Microsoft.Web/staticSites/config@2024-11-01"
+  name      = "appsettings"
+  parent_id = azurerm_static_web_app.main.id
+
+  body = jsonencode({
+    properties = {
+      BUILD_ENVIRONMENT = terraform.workspace
+    }
   })
 }
 

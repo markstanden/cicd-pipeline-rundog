@@ -1,0 +1,15 @@
+@using Rundog.Core.EnvironmentVariables
+<footer class="px-2 py-2 border-top text-muted display-flex flex-column align-items-center"
+        data-testid="footer">
+    <section class="d-flex align-items-center justify-content-between flex-row">
+        @if (!BuildEnvironment.IsProduction)
+        {
+            <p class="d-inline p-0 m-0" data-testid="build-environment">
+                <strong>Environment:</strong> @BuildEnvironment.Value
+            </p>
+        }
+        <p class="bg-red-400 size-4" data-testid="copyright">
+            &copy; 2025 - rundog.dev
+        </p>
+    </section>
+</footer>

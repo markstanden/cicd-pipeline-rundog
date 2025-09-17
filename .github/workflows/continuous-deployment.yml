@@ -1,6 +1,7 @@
+---
 name: "Continuous Deployment"
 
-on:
+"on":
   workflow_dispatch:
   push:
     branches: [ "main" ]
@@ -21,6 +22,7 @@ jobs:
     uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
+      test-filter: "FullyQualifiedName~Unit.Tests"
 
   run-integration-tests:
     needs: [ "build-succeeds" ]
@@ -28,6 +30,7 @@ jobs:
     uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
+      test-filter: "FullyQualifiedName~Integration.Tests"
 
   build-staging-infrastructure:
     needs: [ "build-succeeds" ]
@@ -42,7 +45,7 @@ jobs:
       backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-  
+
   build-production-infrastructure:
     needs: [ "build-succeeds" ]
     name: "Build Production Environment Infrastructure"
@@ -56,7 +59,7 @@ jobs:
       backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_PROD }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-  
+
   build-frontend-release:
     needs: [ "build-succeeds" ]
     name: "Build Frontend Artifact"
@@ -67,6 +70,21 @@ jobs:
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
+
+      - name: "Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "src/Rundog.Web/package-lock.json"
+
+      - name: "Install npm dependencies"
+        working-directory: src/Rundog.Web
+        run: npm ci
+
+      - name: "Build CSS"
+        working-directory: src/Rundog.Web
+        run: npm run build-css:prod
 
       - name: "Setup .NET"
         uses: actions/setup-dotnet@v4
@@ -82,13 +100,13 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: "Restore dependencies"
-        run: dotnet restore src/rundog/rundog.csproj
+        run: dotnet restore src/Rundog.Web/Rundog.Web.csproj
 
       - name: "Build"
-        run: dotnet build src/rundog/rundog.csproj --no-restore --configuration Release
+        run: dotnet build src/Rundog.Web/Rundog.Web.csproj --no-restore --configuration Release
 
       - name: "Publish"
-        run: dotnet publish src/rundog/rundog.csproj --no-restore --configuration Release --output ./publish
+        run: dotnet publish src/Rundog.Web/Rundog.Web.csproj --no-restore --configuration Release --output ./publish
 
       - name: "Upload build artifacts"
         uses: actions/upload-artifact@v4
@@ -99,7 +117,13 @@ jobs:
           retention-days: 30
 
   staging-frontend-deploy:
-    needs: [ "build-succeeds", "run-unit-tests", "run-integration-tests", "build-staging-infrastructure", "build-frontend-release" ]
+    needs: [
+      "build-succeeds",
+      "run-unit-tests",
+      "run-integration-tests",
+      "build-staging-infrastructure",
+      "build-frontend-release"
+    ]
     name: "Deploy Frontend to staging"
     runs-on: "ubuntu-latest"
     environment: "staging"
@@ -118,8 +142,10 @@ jobs:
           TOFU_OUTPUTS_B64: ${{ needs.build-staging-infrastructure.outputs['tofu-outputs-b64'] }}
         run: |
           set -euo pipefail
+
           # Mask the raw base64 payload so it never appears in the logs
           echo "::add-mask::${TOFU_OUTPUTS_B64}"
+
           # Decode into JSON file for parsing
           printf '%s' "${TOFU_OUTPUTS_B64}" | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
           if ! jq -e . tofu_outputs.json > /dev/null; then
@@ -127,14 +153,17 @@ jobs:
             exit 1
           fi
           token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
+
           if [ -z "$token" ]; then
             echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
             echo "Available top-level keys:"
             jq -r 'paths | select(length==1) | join(".")' tofu_outputs.json || true
             exit 1
           fi
+
           echo "::add-mask::${token}"
           echo "token=${token}" >> $GITHUB_OUTPUT
+
       - name: "Download build artifacts"
         uses: actions/download-artifact@v4
         with:
@@ -153,17 +182,45 @@ jobs:
           skip_app_build: true
           is_static_export: true
 
-  run-e2e-tests:
+  run-staging-healthcheck:
     needs: "staging-frontend-deploy"
-    name: "Run End-to-End Tests"
+    name: "Run Staging Healthcheck"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Test staging healthcheck endpoints
+        run: |
+          set -euxo pipefail
+          BASE_URL="${{ needs.staging-frontend-deploy.outputs.staging-url }}"
+
+          # Define routes to test
+          ROUTES=(
+            ""
+            "/manifest.json"
+            "/_framework/blazor.webassembly.js"
+            "/css/site.css"
+            "/favicon.ico"
+          )
+
+          echo "Testing staging endpoints..."
+          for route in "${ROUTES[@]}"; do
+            FULL_URL="${BASE_URL}${route}"
+            echo "Testing: $FULL_URL"
+            curl -fsS --max-time 30 --retry 5 --retry-all-errors --retry-delay 5 -o /dev/null "$FULL_URL"
+            echo "✓ $FULL_URL is responding"
+          done
+          echo "All staging endpoints are responding"
+
+  run-acceptance-tests:
+    needs: [ "run-staging-healthcheck", "staging-frontend-deploy" ]
+    name: "Run Acceptance Tests"
     uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-      test-project-path: "tests/rundog.E2E.Tests"
+      test-project-path: "tests/Rundog.Acceptance.Tests"
       base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
 
   production-frontend-deploy:
-    needs: [ "build-frontend-release", "run-e2e-tests", "build-production-infrastructure" ]
+    needs: [ "build-frontend-release", "run-acceptance-tests", "build-production-infrastructure" ]
     name: "Deploy Frontend to production"
     runs-on: "ubuntu-latest"
     environment: "production"
@@ -220,20 +277,22 @@ jobs:
           output_location: ""
           skip_app_build: true
           is_static_export: true
-  
+
   run-healthcheck:
     needs: "production-frontend-deploy"
     name: "Run Production Healthcheck"
     uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-      test-project-path: "tests/rundog.E2E.Tests"
+      test-name: "Production Deployment Healthcheck"
+      test-project-path: "tests/Rundog.Acceptance.Tests"
+      test-filter: "Environment=Production"
       base-url: ${{ needs.production-frontend-deploy.outputs.production-url }}
 
   auto-destroy-staging:
-    needs: [ "run-e2e-tests", "production-frontend-deploy" ]
+    needs: [ "run-acceptance-tests", "production-frontend-deploy" ]
     if: >
-      needs.run-e2e-tests.result == 'success' &&
+      needs.run-acceptance-tests.result == 'success' &&
       needs.production-frontend-deploy.result == 'success'
     name: "Auto Destroy Staging Environment"
     uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
