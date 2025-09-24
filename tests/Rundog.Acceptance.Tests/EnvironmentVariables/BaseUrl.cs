@@ -1,4 +1,4 @@
-namespace Rundog.Core.EnvironmentVariables;
+namespace Rundog.Acceptance.Tests.EnvironmentVariables;
 
 /// <summary>
 ///     Provides the base URL for the application, either retrieved from an environment variable
@@ -18,7 +18,9 @@ public static class BaseUrl
         get
         {
             string? raw = Environment.GetEnvironmentVariable(BaseUrlEnvironmentVariable);
-            return string.IsNullOrWhiteSpace(raw) ? BaseUrlDefaultLocalValue : raw.Trim();
+            return string.IsNullOrWhiteSpace(raw)
+                ? BaseUrlDefaultLocalValue
+                : raw.Trim();
         }
     }
 }

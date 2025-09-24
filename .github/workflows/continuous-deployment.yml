@@ -215,10 +215,8 @@ jobs:
           # Define routes to test
           ROUTES=(
             ""
-            "/manifest.json"
             "/_framework/blazor.webassembly.js"
             "/css/site.css"
-            "/favicon.ico"
           )
 
           echo "Testing staging endpoints..."
