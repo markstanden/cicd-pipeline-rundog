@@ -13,6 +13,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Core\Core.csproj"/>
+        <ProjectReference Include="..\TestHelpers\TestHelpers.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

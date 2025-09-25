@@ -5,19 +5,42 @@ namespace TestHelpers;
 public static class Any
 {
     // Strings
-    public const string String = "Any String";
+    public const string SingleChar = "a";
+    public const string SingleCharUpper = "A";
+    public const string SingleDigit = "1";
+    public const string SingleSymbol = "@";
+
+    public const string ShortString = "_Any_ String!";
+    public const string MediumString = "_Medium_ string with MIXED casing and whitespace";
+
+    public const string LongString =
+        "_Long_ string with *MIXED* casing, punctuation, whitespace _and_ even a little markdown too!";
+
+    public const string LowercaseString = "lowercase";
+    public const string UppercaseString = "UPPERCASE";
+    public const string MixedCaseString = "MiXeDcAsE";
     public const string FourCharString = "abcd";
     public const string FiveCharString = "abcde";
     public const string SixCharString = "abcdef";
+
+    public const string NumbersOnlyString = "123456";
+
     public const string ShortAlphanumericString = "ABC12345";
     public const string LongAlphanumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+
     public const string ShortAlphaWithSpecialCharsString = "$A^B*C(D)&1<2>3?4%";
     public const string LongAlphaWithSpecialCharsString = "$-A^B*C(D)&*£!<>|,.?;:@'~#[]{}-_-+1=`3¬%";
+
+    public const string EmailString = "emailstring@domain.com";
+    public const string EmailStringWithPlus = "email+string@domain.com";
+
     public const string UrlString = "https://www.anydomain.com";
     public const string OtherUrlString = "https://www.anotherdomain.com";
 
+    public const string PathString = "path/to/file.txt";
+
     // Numbers
-    public const int Integer = 1;
+    public const int WholeNumber = 1;
 
     // URIs
     public static readonly Uri Url = new(UrlString);
