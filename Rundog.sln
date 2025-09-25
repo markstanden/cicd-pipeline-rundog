@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 #
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rundog.Web", "src\Rundog.Web\Rundog.Web.csproj", "{04BA7F93-5EF6-4984-ADB3-28E7EBF5B521}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "src\Web\Web.csproj", "{04BA7F93-5EF6-4984-ADB3-28E7EBF5B521}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rundog.Acceptance.Tests", "tests\Rundog.Acceptance.Tests\Rundog.Acceptance.Tests.csproj", "{14F2AF26-C75F-4B32-8B1E-23FD40E1D38F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Acceptance.Tests", "tests\Web.Acceptance.Tests\Web.Acceptance.Tests.csproj", "{14F2AF26-C75F-4B32-8B1E-23FD40E1D38F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rundog.Core", "src\Rundog.Core\Rundog.Core.csproj", "{F6B8E20A-8013-405C-A506-B619879D7E54}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "src\Core\Core.csproj", "{F6B8E20A-8013-405C-A506-B619879D7E54}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{15A237E5-26D2-4A68-8CBE-E3A571058660}"
 EndProject
@@ -14,6 +14,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastructure", "{6D25601F-1CB6-4D0F-AF06-58600CF270AB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{9127FEFD-6430-4F92-BB21-AA33C47239F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Unit.Tests", "tests\Core.Unit.Tests\Core.Unit.Tests.csproj", "{31825776-6503-4954-AE01-53592A07FEBC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHelpers", "tests\TestHelpers\TestHelpers.csproj", "{5CAD78C7-4057-4B04-863A-2436C7DF5DBD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +37,20 @@ Global
 		{F6B8E20A-8013-405C-A506-B619879D7E54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6B8E20A-8013-405C-A506-B619879D7E54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6B8E20A-8013-405C-A506-B619879D7E54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31825776-6503-4954-AE01-53592A07FEBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31825776-6503-4954-AE01-53592A07FEBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31825776-6503-4954-AE01-53592A07FEBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31825776-6503-4954-AE01-53592A07FEBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CAD78C7-4057-4B04-863A-2436C7DF5DBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CAD78C7-4057-4B04-863A-2436C7DF5DBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CAD78C7-4057-4B04-863A-2436C7DF5DBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CAD78C7-4057-4B04-863A-2436C7DF5DBD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{14F2AF26-C75F-4B32-8B1E-23FD40E1D38F} = {15A237E5-26D2-4A68-8CBE-E3A571058660}
 		{04BA7F93-5EF6-4984-ADB3-28E7EBF5B521} = {8EF2CAD6-FEED-4DF2-94C5-4D6B474529E9}
 		{F6B8E20A-8013-405C-A506-B619879D7E54} = {8EF2CAD6-FEED-4DF2-94C5-4D6B474529E9}
+		{31825776-6503-4954-AE01-53592A07FEBC} = {15A237E5-26D2-4A68-8CBE-E3A571058660}
+		{5CAD78C7-4057-4B04-863A-2436C7DF5DBD} = {15A237E5-26D2-4A68-8CBE-E3A571058660}
 	EndGlobalSection
 EndGlobal

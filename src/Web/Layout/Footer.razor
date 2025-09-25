@@ -1,11 +1,13 @@
-@using Rundog.Core.EnvironmentVariables
+@using Rundog.Core.Configuration
+@inject IAppConfiguration AppConfig
+
 <footer class="px-2 py-2 border-top text-muted display-flex flex-column align-items-center"
         data-testid="footer">
     <section class="d-flex align-items-center justify-content-between flex-row">
-        @if (!BuildEnvironment.IsProduction)
+        @if (!AppConfig.IsProduction)
         {
             <p class="d-inline p-0 m-0" data-testid="build-environment">
-                <strong>Environment:</strong> @BuildEnvironment.Value
+                <strong>Environment:</strong> @AppConfig.DeployEnvironment
             </p>
         }
         <p class="bg-red-400 size-4" data-testid="copyright">

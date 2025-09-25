@@ -1,9 +1,9 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
+using Rundog.Acceptance.Tests.EnvironmentVariables;
 using Rundog.Core.Constants;
-using Rundog.Core.EnvironmentVariables;
 
-namespace Rundog.AcceptanceTests.Pages;
+namespace Rundog.Acceptance.Tests.Pages;
 
 [Trait("Environment", "Production")]
 public class HomeTests : PageTest
