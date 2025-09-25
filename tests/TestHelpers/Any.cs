@@ -8,7 +8,8 @@ public static class Any
     public const string SingleChar = "a";
     public const string SingleCharUpper = "A";
     public const string SingleDigit = "1";
-    public const string SingleSymbol = "@";
+    public const string SingleUrlUnsafeSymbol = "?";
+    public const string SingleUrlSafeSymbol = "_";
 
     public const string ShortString = "_Any_ String!";
     public const string MediumString = "_Medium_ string with MIXED casing and whitespace";
