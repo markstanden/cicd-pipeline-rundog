@@ -20,13 +20,13 @@ public static class TestData
     /// </example>
     public static readonly TheoryData<string> NullOrWhitespace =
     [
-        null!,
-        "",
-        "    ",
-        "\n",
-        "\r",
-        "\r\n",
-        "\t"
+        Any.NullString,
+        Any.EmptyString,
+        Any.WhitespaceString,
+        Any.NewlineString,
+        Any.CarriageReturnString,
+        Any.CarriageReturnNewlineString,
+        Any.TabString
     ];
 
     /// <summary>
