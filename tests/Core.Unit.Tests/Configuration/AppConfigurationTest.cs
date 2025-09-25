@@ -90,4 +90,32 @@ public class AppConfigurationTest
         // Assert
         result.ShouldBe(expected);
     }
+
+    [Fact]
+    public void IsProduction_WithProductionDeployEnvSet_ReturnsTrue()
+    {
+        // Arrange
+        const string env = AppConfiguration.DeployEnv.Production;
+        AppConfiguration sut = CreateSut(env: env);
+
+        // Act
+        bool result = sut.IsProduction;
+
+        // Assert
+        result.ShouldBeTrue();
+    }
+
+    [Theory]
+    [MemberData(nameof(TestData.AlphanumericStringsWithSpecials), MemberType = typeof(TestData))]
+    public void IsProduction_WithOtherDeployEnvSet_ReturnsFalse(string env)
+    {
+        // Arrange
+        AppConfiguration sut = CreateSut(env: env);
+
+        // Act
+        bool result = sut.IsProduction;
+
+        // Assert
+        result.ShouldBeFalse();
+    }
 }
