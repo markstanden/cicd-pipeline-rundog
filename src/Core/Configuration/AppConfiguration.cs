@@ -7,7 +7,7 @@ namespace Rundog.Core.Configuration;
 /// </summary>
 public class AppConfiguration : IAppConfiguration
 {
-    private const string DefaultVersion = "Not Set";
+    internal const string DefaultVersion = "Not Set";
     private readonly IConfiguration _configuration;
 
     /// <summary>
@@ -50,33 +50,33 @@ public class AppConfiguration : IAppConfiguration
     /// <summary>
     ///     Static constant class providing config key names
     /// </summary>
-    public static class Keys
+    internal static class Keys
     {
         /// <summary>
         ///     Config key for the current deployment environment
         /// </summary>
-        public const string DeployEnv = "DeployEnvironment";
+        internal const string DeployEnv = "DeployEnvironment";
 
         /// <summary>
         ///     Config key for the deployed app version
         /// </summary>
-        public const string Version = "AppVersion";
+        internal const string Version = "AppVersion";
     }
 
     /// <summary>
     ///     Static constant class providing logical storage
     ///     for deployment environment names
     /// </summary>
-    public static class DeployEnv
+    internal static class DeployEnv
     {
         /// <summary>
         ///     Used as a default to signal a local deployment
         /// </summary>
-        public const string Local = "Local";
+        internal const string Local = "Local";
 
         /// <summary>
         ///     Used as a comparison to signal whether the app is currently deployed to production
         /// </summary>
-        public const string Production = "Production";
+        internal const string Production = "Production";
     }
 }
