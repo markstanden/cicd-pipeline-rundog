@@ -7,7 +7,7 @@ using TestHelpers.Theory;
 namespace Core.Unit.Tests.Configuration;
 
 [TestSubject(typeof(AppConfiguration))]
-public class AppConfigurationTest
+public class AppConfigurationTests
 {
     private static AppConfiguration CreateSut(
         string? version = null,
