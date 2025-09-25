@@ -40,6 +40,15 @@ public static class Any
 
     public const string PathString = "path/to/file.txt";
 
+    // Null, empty, and whitespace strings
+    public const string NullString = null!;
+    public const string EmptyString = "";
+    public const string WhitespaceString = "    ";
+    public const string NewlineString = "\n";
+    public const string CarriageReturnString = "\r";
+    public const string CarriageReturnNewlineString = "\r\n";
+    public const string TabString = "\t";
+
     // Numbers
     public const int WholeNumber = 1;
 
