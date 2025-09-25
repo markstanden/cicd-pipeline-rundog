@@ -13,14 +13,14 @@ public class AppConfigurationTest
         string? env = null
     )
     {
-        Dictionary<string, string?> configData = new();
+        Dictionary<string, string?> configData = [];
 
-        if (version != null)
+        if (version is not null)
         {
             configData[AppConfiguration.Keys.Version] = version;
         }
 
-        if (env != null)
+        if (env is not null)
         {
             configData[AppConfiguration.Keys.DeployEnv] = env;
         }
@@ -34,7 +34,7 @@ public class AppConfigurationTest
 
     [Theory]
     [MemberData(nameof(TestData.NullOrWhitespace), MemberType = typeof(TestData))]
-    public void DeployEnvironment_ReturnsLocal_WhenConfigurationValueIsUnset(string? empty)
+    public void DeployEnvironment_WithConfigurationValueUnset_ReturnsLocal(string? empty)
     {
         // Arrange
         AppConfiguration sut = CreateSut(env: empty);
@@ -49,7 +49,7 @@ public class AppConfigurationTest
 
     [Theory]
     [MemberData(nameof(TestData.AlphanumericStringsWithSpecials), MemberType = typeof(TestData))]
-    public void DeployEnvironment_ReturnsFromConfig_WhenConfigurationValueIsSet(string expected)
+    public void DeployEnvironment_WithConfigurationValueSet_ReturnsFromConfig(string expected)
     {
         // Arrange
         AppConfiguration sut = CreateSut(env: expected);
@@ -64,7 +64,7 @@ public class AppConfigurationTest
 
     [Theory]
     [MemberData(nameof(TestData.NullOrWhitespace), MemberType = typeof(TestData))]
-    public void AppVersion_ReturnsDefault_WhenConfigurationValueIsUnset(string? empty)
+    public void AppVersion_WithConfigurationValueUnset_ReturnsDefault(string? empty)
     {
         // Arrange
         AppConfiguration sut = CreateSut(empty);
@@ -79,7 +79,7 @@ public class AppConfigurationTest
 
     [Theory]
     [MemberData(nameof(TestData.AlphanumericStringsWithSpecials), MemberType = typeof(TestData))]
-    public void AppVersion_ReturnsFromConfig_WhenConfigurationValueIsSet(string expected)
+    public void AppVersion_WithConfigurationValueSet_ReturnsFromConfig(string expected)
     {
         // Arrange
         AppConfiguration sut = CreateSut(expected);
