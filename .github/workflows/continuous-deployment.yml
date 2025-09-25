@@ -174,20 +174,56 @@ jobs:
         env:
           DEPLOY_ENVIRONMENT: "Staging"
         run: |
+          set -euo pipefail
+          
           APPSETTINGS_PATH="./publish/wwwroot/appsettings.json"
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
           
-          # Read the file content
+          # Verify appsettings.json exists and is non-empty
+          if [[ ! -f "$APPSETTINGS_PATH" ]]; then
+            echo "ERROR: appsettings.json not found at $APPSETTINGS_PATH"
+            exit 1
+          fi
+          
+          if [[ ! -s "$APPSETTINGS_PATH" ]]; then
+            echo "ERROR: appsettings.json is empty at $APPSETTINGS_PATH"
+            exit 1
+          fi
+          
+          echo "Processing appsettings.json at: $APPSETTINGS_PATH"
+          
+          # Read the file content into a variable
           content=$(cat "$APPSETTINGS_PATH")
           
-          # Replace the tokens
+          # Perform token replacements
           content="${content//\{\{DEPLOY_ENVIRONMENT\}\}/$DEPLOY_ENVIRONMENT}"
           content="${content//\{\{APP_VERSION\}\}/$SHORT_SHA}"
           
-          # Write the content back to the file
-          echo "$content" > "$APPSETTINGS_PATH"
+          # Assert that all tokens were replaced (fail if any remain)
+          if echo "$content" | grep -q '{{.*}}'; then
+            echo "ERROR: Unreplaced tokens found in appsettings.json:"
+            echo "$content" | grep -o '{{[^}]*}}' || true
+            exit 1
+          fi
           
-          echo "Updated appsettings.json for $DEPLOY_ENVIRONMENT:"
+          # Write changes atomically to temp file then move into place
+          temp_file=$(mktemp)
+          echo "$content" > "$temp_file"
+          
+          # Validate final JSON with jq
+          if ! jq empty "$temp_file" 2>/dev/null; then
+            echo "ERROR: Generated JSON is invalid"
+            echo "Content:"
+            cat "$temp_file"
+            rm -f "$temp_file"
+            exit 1
+          fi
+          
+          # Move temp file into place atomically
+          mv "$temp_file" "$APPSETTINGS_PATH"
+          
+          echo "✅ Successfully updated appsettings.json for $DEPLOY_ENVIRONMENT environment"
+          echo "Final content:"
           cat "$APPSETTINGS_PATH"
 
       - name: "Deploy to Azure Static Web App"
@@ -289,20 +325,56 @@ jobs:
         env:
           DEPLOY_ENVIRONMENT: "Production"
         run: |
+          set -euo pipefail
+          
           APPSETTINGS_PATH="./publish/wwwroot/appsettings.json"
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
           
-          # Read the file content
+          # Verify appsettings.json exists and is non-empty
+          if [[ ! -f "$APPSETTINGS_PATH" ]]; then
+            echo "ERROR: appsettings.json not found at $APPSETTINGS_PATH"
+            exit 1
+          fi
+          
+          if [[ ! -s "$APPSETTINGS_PATH" ]]; then
+            echo "ERROR: appsettings.json is empty at $APPSETTINGS_PATH"
+            exit 1
+          fi
+          
+          echo "Processing appsettings.json at: $APPSETTINGS_PATH"
+          
+          # Read the file content into a variable
           content=$(cat "$APPSETTINGS_PATH")
           
-          # Replace the tokens
+          # Perform token replacements
           content="${content//\{\{DEPLOY_ENVIRONMENT\}\}/$DEPLOY_ENVIRONMENT}"
           content="${content//\{\{APP_VERSION\}\}/$SHORT_SHA}"
           
-          # Write the content back to the file
-          echo "$content" > "$APPSETTINGS_PATH"
+          # Assert that all tokens were replaced (fail if any remain)
+          if echo "$content" | grep -q '{{.*}}'; then
+            echo "ERROR: Unreplaced tokens found in appsettings.json:"
+            echo "$content" | grep -o '{{[^}]*}}' || true
+            exit 1
+          fi
           
-          echo "Updated appsettings.json for $DEPLOY_ENVIRONMENT:"
+          # Write changes atomically to temp file then move into place
+          temp_file=$(mktemp)
+          echo "$content" > "$temp_file"
+          
+          # Validate final JSON with jq
+          if ! jq empty "$temp_file" 2>/dev/null; then
+            echo "ERROR: Generated JSON is invalid"
+            echo "Content:"
+            cat "$temp_file"
+            rm -f "$temp_file"
+            exit 1
+          fi
+          
+          # Move temp file into place atomically
+          mv "$temp_file" "$APPSETTINGS_PATH"
+          
+          echo "✅ Successfully updated appsettings.json for $DEPLOY_ENVIRONMENT environment"
+          echo "Final content:"
           cat "$APPSETTINGS_PATH"
 
       - name: "Deploy to Azure Static Web App"
