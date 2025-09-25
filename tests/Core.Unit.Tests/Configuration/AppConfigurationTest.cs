@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Rundog.Core.Configuration;
@@ -30,6 +31,21 @@ public class AppConfigurationTest
             .Build();
 
         return new AppConfiguration(config);
+    }
+
+    [Fact]
+    public void Constructor_WithNullConfigurationParam_ThrowsArgumentNullException()
+    {
+        // Arrange
+        string expectedParam = "configuration";
+        IConfiguration nullConfig = null!;
+
+        // Act
+        Func<AppConfiguration> withNullConfig = () => new AppConfiguration(nullConfig);
+
+        // Assert
+        ArgumentNullException ex = withNullConfig.ShouldThrow<ArgumentNullException>();
+        ex.ParamName.ShouldBe(expectedParam);
     }
 
     [Theory]

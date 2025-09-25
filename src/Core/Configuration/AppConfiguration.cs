@@ -16,7 +16,7 @@ public class AppConfiguration : IAppConfiguration
     /// <param name="configuration">The configuration instance.</param>
     public AppConfiguration(IConfiguration configuration)
     {
-        _configuration = configuration;
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
     /// <inheritdoc />
