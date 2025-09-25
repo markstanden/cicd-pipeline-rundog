@@ -2,6 +2,7 @@ using System;
 
 namespace TestHelpers;
 
+[ExcludeFromCodeCoverage]
 public static class Any
 {
     // Strings

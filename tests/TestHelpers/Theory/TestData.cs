@@ -1,5 +1,6 @@
 namespace TestHelpers.Theory;
 
+[ExcludeFromCodeCoverage]
 public static class TestData
 {
     /// <summary>

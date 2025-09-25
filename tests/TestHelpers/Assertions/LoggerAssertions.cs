@@ -8,6 +8,7 @@ namespace TestHelpers.Assertions;
 ///     Extension methods for asserting logger behaviour in unit tests using the Shouldly-style syntax used within the test
 ///     project.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class LoggerAssertions
 {
     /// <summary>
@@ -46,8 +47,6 @@ public static class LoggerAssertions
     public static void ShouldHaveLoggedOnce<T>(
         this Mock<ILogger<T>> mockLogger,
         LogLevel level,
-        params string[] expectedMessages)
-    {
+        params string[] expectedMessages) =>
         mockLogger.ShouldHaveLogged(Times.Once, level, expectedMessages);
-    }
 }
