@@ -253,7 +253,7 @@ jobs:
     uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-      test-project-path: "tests/Acceptance.Tests"
+      test-project-path: "tests/Web.Acceptance.Tests"
       base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
 
   production-frontend-deploy:
@@ -366,7 +366,7 @@ jobs:
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-name: "Production Deployment Healthcheck"
-      test-project-path: "tests/Acceptance.Tests"
+      test-project-path: "tests/Web.Acceptance.Tests"
       test-filter: "Environment=Production"
       base-url: ${{ needs.production-frontend-deploy.outputs.production-url }}
 
