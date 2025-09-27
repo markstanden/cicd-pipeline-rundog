@@ -58,8 +58,7 @@ csharp_style_var_when_type_is_apparent = false:suggestion
 csharp_style_var_elsewhere = false:suggestion
 
 # Prefer target-typed new()
-csharp_style_prefer_target_typed_new = true:suggestion
-dotnet_diagnostic.IDE0090.severity = suggestion
+csharp_style_implicit_object_creation_when_type_is_apparent = true:suggestion
 
 ## Expression-bodied members
 csharp_style_expression_bodied_methods = when_on_single_line:suggestion
