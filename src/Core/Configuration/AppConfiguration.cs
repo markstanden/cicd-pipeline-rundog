@@ -26,7 +26,7 @@ public class AppConfiguration : IAppConfiguration
         {
             string? value = _configuration[Keys.DeployEnv];
             return string.IsNullOrWhiteSpace(value)
-                ? DeployEnv.Local
+                ? Env.Local
                 : value.Trim();
         }
     }
@@ -45,7 +45,7 @@ public class AppConfiguration : IAppConfiguration
 
     /// <inheritdoc />
     public bool IsProduction =>
-        string.Equals(DeployEnvironment, DeployEnv.Production, StringComparison.OrdinalIgnoreCase);
+        string.Equals(DeployEnvironment, Env.Production, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///     Static constant class providing config key names
@@ -67,7 +67,7 @@ public class AppConfiguration : IAppConfiguration
     ///     Static constant class providing logical storage
     ///     for deployment environment names
     /// </summary>
-    internal static class DeployEnv
+    internal static class Env
     {
         /// <summary>
         ///     Used as a default to signal a local deployment
