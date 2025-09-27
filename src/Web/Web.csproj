@@ -20,13 +20,27 @@
         <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-        <Content Update="Styles\site.css">
-            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-            <TargetPath>wwwroot\css\site.css</TargetPath>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        </Content>
-    </ItemGroup>
+  <Target Name="NpmInstallIfNeeded"
+          BeforeTargets="Build;Publish"
+          Condition="Exists('package.json') AND !Exists('node_modules')">
+    <Message Text="Running npm ci (first-time install)..." Importance="high" />
+    <Exec Command="npm ci" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+
+  <Target Name="BuildTailwindCss"
+          DependsOnTargets="NpmInstallIfNeeded"
+          BeforeTargets="Build;Publish"
+          Condition="Exists('package.json')">
+    <Message Text="Building Tailwind CSS for $(Configuration)..." Importance="high" />
+
+    <Exec Command="npm run build-css"
+          Condition="'$(Configuration)'=='Debug'"
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+
+    <Exec Command="npm run build-css:prod"
+          Condition="'$(Configuration)'!='Debug'"
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+
 
 </Project>
