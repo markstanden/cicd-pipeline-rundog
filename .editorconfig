@@ -12,20 +12,6 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 4
 
-# C# Test files
-[tests/**/*.Tests/**/*.cs]
-
-# Allow underscores in test method names
-dotnet_naming_rule.test_methods_should_be_underscore_case.severity = none
-dotnet_naming_rule.test_methods_should_be_underscore_case.symbols = test_methods
-dotnet_naming_rule.test_methods_should_be_underscore_case.style = underscore_case
-
-dotnet_naming_symbols.test_methods.applicable_kinds = method
-dotnet_naming_symbols.test_methods.applicable_accessibilities = public
-
-dotnet_naming_style.underscore_case.capitalization = pascal_case
-dotnet_naming_style.underscore_case.word_separator = _
-
 # C# files
 [*.cs]
 indent_size = 4
@@ -67,9 +53,13 @@ dotnet_style_prefer_conditional_expression_over_return = true:silent
 
 # C# code style settings
 ## Implicit and explicit types
-csharp_style_var_for_built_in_types = true:suggestion
-csharp_style_var_when_type_is_apparent = true:suggestion
-csharp_style_var_elsewhere = true:suggestion
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = false:suggestion
+csharp_style_var_elsewhere = false:suggestion
+
+# Prefer target-typed new()
+csharp_style_prefer_target_typed_new = true:suggestion
+dotnet_diagnostic.IDE0090.severity = suggestion
 
 ## Expression-bodied members
 csharp_style_expression_bodied_methods = when_on_single_line:suggestion
@@ -123,6 +113,17 @@ dotnet_naming_style.begins_with_i.capitalization = pascal_case
 dotnet_naming_rule.constants_should_be_pascal_case.symbols = constants
 dotnet_naming_rule.constants_should_be_pascal_case.style = constant_style
 dotnet_naming_rule.constants_should_be_pascal_case.severity = suggestion
+
+# Allow underscores in test method names
+dotnet_naming_rule.test_methods_should_be_underscore_case.severity = none
+dotnet_naming_rule.test_methods_should_be_underscore_case.symbols = test_methods
+dotnet_naming_rule.test_methods_should_be_underscore_case.style = underscore_case
+
+dotnet_naming_symbols.test_methods.applicable_kinds = method
+dotnet_naming_symbols.test_methods.applicable_accessibilities = public
+
+dotnet_naming_style.underscore_case.capitalization = pascal_case
+dotnet_naming_style.underscore_case.word_separator = _
 
 dotnet_naming_symbols.constants.applicable_kinds = field, local
 dotnet_naming_symbols.constants.required_modifiers = const
@@ -193,3 +194,4 @@ trim_trailing_whitespace = false
 [*.sh]
 end_of_line = lf
 indent_size = 4
+

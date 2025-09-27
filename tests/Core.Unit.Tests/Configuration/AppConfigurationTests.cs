@@ -54,7 +54,7 @@ public class AppConfigurationTests
     {
         // Arrange
         AppConfiguration sut = CreateSut(env: empty);
-        const string expected = AppConfiguration.DeployEnv.Local;
+        const string expected = AppConfiguration.Env.Local;
 
         // Act
         string result = sut.DeployEnvironment;
@@ -111,7 +111,7 @@ public class AppConfigurationTests
     public void IsProduction_WithProductionDeployEnvSet_ReturnsTrue()
     {
         // Arrange
-        const string env = AppConfiguration.DeployEnv.Production;
+        const string env = AppConfiguration.Env.Production;
         AppConfiguration sut = CreateSut(env: env);
 
         // Act

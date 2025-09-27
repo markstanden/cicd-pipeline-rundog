@@ -1,0 +1,23 @@
+<Project>
+  <PropertyGroup>
+    <NoWarn>CA1707</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SonarQubeSetting Include="sonar.projectBaseDir">
+      <Value>$(MSBuildThisFileDirectory)</Value>
+    </SonarQubeSetting>
+
+    <SonarQubeSetting Include="sonar.exclusions">
+      <Value>**/microsoft.playwright/**/*,**/.playwright/**/*,**/test-results/**/*,**/playwright-report/**/*,**/playwright/.cache/**/*,**/.nuget/**/*,**/bin/**/*,**/obj/**/*,**/node_modules/**/*,**/vite/**/*,**/snapshot.html,**/lib/**/*,**/wwwroot/lib/**/*</Value>
+    </SonarQubeSetting>
+
+    <SonarQubeSetting Include="sonar.test.exclusions">
+      <Value>**/microsoft.playwright/**/*,**/.playwright/**/*,**/test-results/**/*,**/playwright-report/**/*,**/playwright/.cache/**/*,**/.nuget/**/*,**/bin/**/*,**/obj/**/*,**/node_modules/**/*,**/vite/**/*,**/snapshot.html,**/lib/**/*,**/wwwroot/lib/**/*</Value>
+    </SonarQubeSetting>
+
+    <SonarQubeSetting Include="sonar.verbose">
+      <Value>true</Value>
+    </SonarQubeSetting>
+  </ItemGroup>
+</Project>
