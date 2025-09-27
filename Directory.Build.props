@@ -2,4 +2,22 @@
   <PropertyGroup>
     <NoWarn>CA1707</NoWarn>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <SonarQubeExclude>
+      **/microsoft.playwright/**/*;
+      **/.playwright/**/*;
+      **/test-results/**/*;
+      **/playwright-report/**/*;
+      **/playwright/.cache/**/*;
+      **/.nuget/**/*;
+      **/bin/**/*;
+      **/obj/**/*;
+      **/node_modules/**/*;
+      **/vite/**/*;
+      **/snapshot.html;
+      **/lib/**/*;
+      **/wwwroot/lib/**/*
+    </SonarQubeExclude>
+  </PropertyGroup>
 </Project>
