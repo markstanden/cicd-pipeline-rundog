@@ -53,9 +53,13 @@ dotnet_style_prefer_conditional_expression_over_return = true:silent
 
 # C# code style settings
 ## Implicit and explicit types
-csharp_style_var_for_built_in_types = true:suggestion
-csharp_style_var_when_type_is_apparent = true:suggestion
-csharp_style_var_elsewhere = true:suggestion
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = false:suggestion
+csharp_style_var_elsewhere = false:suggestion
+
+# Prefer target-typed new()
+csharp_style_prefer_target_typed_new = true:suggestion
+dotnet_diagnostic.IDE0090.severity = suggestion
 
 ## Expression-bodied members
 csharp_style_expression_bodied_methods = when_on_single_line:suggestion
