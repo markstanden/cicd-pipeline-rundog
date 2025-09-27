@@ -6,7 +6,7 @@
             DefaultLayout="@typeof(MainLayout)"/>
         <FocusOnNavigate
             RouteData="@routeData"
-            Selector="[data-initial-focus], #initial-focus"/>
+            Selector="@Selectors.InitialFocus.Selector"/>
     </Found>
     <NotFound>
         <PageTitle>Not found</PageTitle>
