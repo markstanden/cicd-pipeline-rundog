@@ -1,8 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Components
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
-        <FocusOnNavigate RouteData="@routeData"/>
+        <RouteView
+            RouteData="@routeData"
+            DefaultLayout="@typeof(MainLayout)"/>
+        <FocusOnNavigate
+            RouteData="@routeData"
+            Selector="[data-initial-focus], #initial-focus"/>
     </Found>
     <NotFound>
         <PageTitle>Not found</PageTitle>
