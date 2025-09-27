@@ -254,6 +254,7 @@ jobs:
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-project-path: "tests/Web.Acceptance.Tests"
+      test-filter: "FullyQualifiedName~Acceptance.Tests"
       base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
 
   production-frontend-deploy:
@@ -367,7 +368,7 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-name: "Production Deployment Healthcheck"
       test-project-path: "tests/Web.Acceptance.Tests"
-      test-filter: "Environment=Production"
+      test-filter: "FullyQualifiedName~Acceptance.Tests&Environment=Production"
       base-url: ${{ needs.production-frontend-deploy.outputs.production-url }}
 
   auto-destroy-staging:
