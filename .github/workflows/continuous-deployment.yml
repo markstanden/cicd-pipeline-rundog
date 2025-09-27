@@ -192,35 +192,23 @@ jobs:
 
           echo "Processing appsettings.json at: $APPSETTINGS_PATH"
 
-          # Read the file content into a variable
-          content=$(cat "$APPSETTINGS_PATH")
+          # Use jq (JSON processor) to safely update JSON values
+          # --arg creates variables that jq can use safely (handles escaping/quoting)
+          # $env and $ver reference the --arg variables inside the jq expression
+          # The pipe (|) chains the operations: set DeployEnvironment, then set AppVersion
+          jq --arg env "$DEPLOY_ENVIRONMENT" \
+            --arg ver "$SHORT_SHA" \
+            '.DeployEnvironment = $env | .AppVersion = $ver' \
+            "$APPSETTINGS_PATH" > temp.json
 
-          # Perform token replacements
-          content="${content//\{\{DEPLOY_ENVIRONMENT\}\}/$DEPLOY_ENVIRONMENT}"
-          content="${content//\{\{APP_VERSION\}\}/$SHORT_SHA}"
+          # Atomically replace the original file (avoids corruption if interrupted)
+          mv temp.json "$APPSETTINGS_PATH"
 
-          # Assert that all tokens were replaced (fail if any remain)
-          if echo "$content" | grep -q '{{.*}}'; then
-            echo "ERROR: Unreplaced tokens found in appsettings.json:"
-            echo "$content" | grep -o '{{[^}]*}}' || true
-            exit 1
-          fi
-
-          # Write changes atomically to temp file then move into place
-          temp_file=$(mktemp)
-          echo "$content" > "$temp_file"
-
-          # Validate final JSON with jq
-          if ! jq empty "$temp_file" 2>/dev/null; then
+          # Verify the JSON is still valid after our changes
+          if ! jq empty "$APPSETTINGS_PATH" 2>/dev/null; then
             echo "ERROR: Generated JSON is invalid"
-            echo "Content:"
-            cat "$temp_file"
-            rm -f "$temp_file"
             exit 1
           fi
-
-          # Move temp file into place atomically
-          mv "$temp_file" "$APPSETTINGS_PATH"
 
           echo "✅ Successfully updated appsettings.json for $DEPLOY_ENVIRONMENT environment"
           echo "Final content:"
@@ -342,35 +330,23 @@ jobs:
 
           echo "Processing appsettings.json at: $APPSETTINGS_PATH"
 
-          # Read the file content into a variable
-          content=$(cat "$APPSETTINGS_PATH")
+          # Use jq (JSON processor) to safely update JSON values
+          # --arg creates variables that jq can use safely (handles escaping/quoting)
+          # $env and $ver reference the --arg variables inside the jq expression
+          # The pipe (|) chains the operations: set DeployEnvironment, then set AppVersion
+          jq --arg env "$DEPLOY_ENVIRONMENT" \
+            --arg ver "$SHORT_SHA" \
+            '.DeployEnvironment = $env | .AppVersion = $ver' \
+            "$APPSETTINGS_PATH" > temp.json
 
-          # Perform token replacements
-          content="${content//\{\{DEPLOY_ENVIRONMENT\}\}/$DEPLOY_ENVIRONMENT}"
-          content="${content//\{\{APP_VERSION\}\}/$SHORT_SHA}"
+          # Atomically replace the original file (avoids corruption if interrupted)
+          mv temp.json "$APPSETTINGS_PATH"
 
-          # Assert that all tokens were replaced (fail if any remain)
-          if echo "$content" | grep -q '{{.*}}'; then
-            echo "ERROR: Unreplaced tokens found in appsettings.json:"
-            echo "$content" | grep -o '{{[^}]*}}' || true
-            exit 1
-          fi
-
-          # Write changes atomically to temp file then move into place
-          temp_file=$(mktemp)
-          echo "$content" > "$temp_file"
-
-          # Validate final JSON with jq
-          if ! jq empty "$temp_file" 2>/dev/null; then
+          # Verify the JSON is still valid after our changes
+          if ! jq empty "$APPSETTINGS_PATH" 2>/dev/null; then
             echo "ERROR: Generated JSON is invalid"
-            echo "Content:"
-            cat "$temp_file"
-            rm -f "$temp_file"
             exit 1
           fi
-
-          # Move temp file into place atomically
-          mv "$temp_file" "$APPSETTINGS_PATH"
 
           echo "✅ Successfully updated appsettings.json for $DEPLOY_ENVIRONMENT environment"
           echo "Final content:"
