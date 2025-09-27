@@ -81,10 +81,6 @@ jobs:
         working-directory: src/Web
         run: npm ci
 
-      - name: "Build CSS"
-        working-directory: src/Web
-        run: npm run build-css:prod
-
       - name: "Setup .NET"
         uses: actions/setup-dotnet@v4
         with:
