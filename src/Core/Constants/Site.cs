@@ -10,9 +10,4 @@ public static class Site
     ///     Displayed in the tab within the browser
     /// </summary>
     public const string Title = "rundog.dev";
-
-    /// <summary>
-    ///     The catchy slogan that embodies the site
-    /// </summary>
-    public const string Slogan = "Think twice, code once.";
 }

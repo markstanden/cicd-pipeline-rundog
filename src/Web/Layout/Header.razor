@@ -1,5 +1,14 @@
-<header data-testid="header">
-    <p data-testid="site-slogan">
-        @Site.Slogan
-    </p>
+@using Rundog.Core.Models
+
+<header data-testid="@TestIds.Header.Section">
+    <section data-testid="@TestIds.Header.LinksSection">
+        <ul>
+            @foreach (Link link in Links.HeaderLinks)
+            {
+                <li>
+                    <a href="@link.Href">@link.Text</a>
+                </li>
+            }
+        </ul>
+    </section>
 </header>

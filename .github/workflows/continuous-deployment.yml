@@ -11,14 +11,14 @@ permissions:
 jobs:
   build-succeeds:
     name: "Build Solution"
-    uses: markstanden/coding-standards/.github/workflows/build.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/build.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-unit-tests:
     needs: [ "build-succeeds" ]
     name: "Run Unit Tests"
-    uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-filter: "FullyQualifiedName~Unit.Tests"
@@ -26,7 +26,7 @@ jobs:
   run-integration-tests:
     needs: [ "build-succeeds" ]
     name: "Run Integration Tests"
-    uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-filter: "FullyQualifiedName~Integration.Tests"
@@ -34,7 +34,7 @@ jobs:
   build-staging-infrastructure:
     needs: [ "build-succeeds" ]
     name: "Build Staging Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
@@ -48,7 +48,7 @@ jobs:
   build-production-infrastructure:
     needs: [ "build-succeeds" ]
     name: "Build Production Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
@@ -75,15 +75,11 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: "src/Rundog.Web/package-lock.json"
+          cache-dependency-path: "src/Web/package-lock.json"
 
       - name: "Install npm dependencies"
-        working-directory: src/Rundog.Web
+        working-directory: src/Web
         run: npm ci
-
-      - name: "Build CSS"
-        working-directory: src/Rundog.Web
-        run: npm run build-css:prod
 
       - name: "Setup .NET"
         uses: actions/setup-dotnet@v4
@@ -99,13 +95,13 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: "Restore dependencies"
-        run: dotnet restore src/Rundog.Web/Rundog.Web.csproj
+        run: dotnet restore src/Web/Web.csproj
 
       - name: "Build"
-        run: dotnet build src/Rundog.Web/Rundog.Web.csproj --no-restore --configuration Release
+        run: dotnet build src/Web/Web.csproj --no-restore --configuration Release
 
       - name: "Publish"
-        run: dotnet publish src/Rundog.Web/Rundog.Web.csproj --no-restore --configuration Release --output ./publish
+        run: dotnet publish src/Web/Web.csproj --no-restore --configuration Release --output ./publish
 
       - name: "Upload build artifacts"
         uses: actions/upload-artifact@v4
@@ -192,35 +188,23 @@ jobs:
 
           echo "Processing appsettings.json at: $APPSETTINGS_PATH"
 
-          # Read the file content into a variable
-          content=$(cat "$APPSETTINGS_PATH")
+          # Use jq (JSON processor) to safely update JSON values
+          # --arg creates variables that jq can use safely (handles escaping/quoting)
+          # $env and $ver reference the --arg variables inside the jq expression
+          # The pipe (|) chains the operations: set DeployEnvironment, then set AppVersion
+          jq --arg env "$DEPLOY_ENVIRONMENT" \
+            --arg ver "$SHORT_SHA" \
+            '.DeployEnvironment = $env | .AppVersion = $ver' \
+            "$APPSETTINGS_PATH" > temp.json
 
-          # Perform token replacements
-          content="${content//\{\{DEPLOY_ENVIRONMENT\}\}/$DEPLOY_ENVIRONMENT}"
-          content="${content//\{\{APP_VERSION\}\}/$SHORT_SHA}"
+          # Atomically replace the original file (avoids corruption if interrupted)
+          mv temp.json "$APPSETTINGS_PATH"
 
-          # Assert that all tokens were replaced (fail if any remain)
-          if echo "$content" | grep -q '{{.*}}'; then
-            echo "ERROR: Unreplaced tokens found in appsettings.json:"
-            echo "$content" | grep -o '{{[^}]*}}' || true
-            exit 1
-          fi
-
-          # Write changes atomically to temp file then move into place
-          temp_file=$(mktemp)
-          echo "$content" > "$temp_file"
-
-          # Validate final JSON with jq
-          if ! jq empty "$temp_file" 2>/dev/null; then
+          # Verify the JSON is still valid after our changes
+          if ! jq empty "$APPSETTINGS_PATH" 2>/dev/null; then
             echo "ERROR: Generated JSON is invalid"
-            echo "Content:"
-            cat "$temp_file"
-            rm -f "$temp_file"
             exit 1
           fi
-
-          # Move temp file into place atomically
-          mv "$temp_file" "$APPSETTINGS_PATH"
 
           echo "✅ Successfully updated appsettings.json for $DEPLOY_ENVIRONMENT environment"
           echo "Final content:"
@@ -266,10 +250,11 @@ jobs:
   run-acceptance-tests:
     needs: [ "run-staging-healthcheck", "staging-frontend-deploy" ]
     name: "Run Acceptance Tests"
-    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-      test-project-path: "tests/Rundog.Acceptance.Tests"
+      test-project-path: "tests/Web.Acceptance.Tests"
+      test-filter: "FullyQualifiedName~Acceptance.Tests"
       base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
 
   production-frontend-deploy:
@@ -342,35 +327,23 @@ jobs:
 
           echo "Processing appsettings.json at: $APPSETTINGS_PATH"
 
-          # Read the file content into a variable
-          content=$(cat "$APPSETTINGS_PATH")
+          # Use jq (JSON processor) to safely update JSON values
+          # --arg creates variables that jq can use safely (handles escaping/quoting)
+          # $env and $ver reference the --arg variables inside the jq expression
+          # The pipe (|) chains the operations: set DeployEnvironment, then set AppVersion
+          jq --arg env "$DEPLOY_ENVIRONMENT" \
+            --arg ver "$SHORT_SHA" \
+            '.DeployEnvironment = $env | .AppVersion = $ver' \
+            "$APPSETTINGS_PATH" > temp.json
 
-          # Perform token replacements
-          content="${content//\{\{DEPLOY_ENVIRONMENT\}\}/$DEPLOY_ENVIRONMENT}"
-          content="${content//\{\{APP_VERSION\}\}/$SHORT_SHA}"
+          # Atomically replace the original file (avoids corruption if interrupted)
+          mv temp.json "$APPSETTINGS_PATH"
 
-          # Assert that all tokens were replaced (fail if any remain)
-          if echo "$content" | grep -q '{{.*}}'; then
-            echo "ERROR: Unreplaced tokens found in appsettings.json:"
-            echo "$content" | grep -o '{{[^}]*}}' || true
-            exit 1
-          fi
-
-          # Write changes atomically to temp file then move into place
-          temp_file=$(mktemp)
-          echo "$content" > "$temp_file"
-
-          # Validate final JSON with jq
-          if ! jq empty "$temp_file" 2>/dev/null; then
+          # Verify the JSON is still valid after our changes
+          if ! jq empty "$APPSETTINGS_PATH" 2>/dev/null; then
             echo "ERROR: Generated JSON is invalid"
-            echo "Content:"
-            cat "$temp_file"
-            rm -f "$temp_file"
             exit 1
           fi
-
-          # Move temp file into place atomically
-          mv "$temp_file" "$APPSETTINGS_PATH"
 
           echo "✅ Successfully updated appsettings.json for $DEPLOY_ENVIRONMENT environment"
           echo "Final content:"
@@ -390,12 +363,12 @@ jobs:
   run-healthcheck:
     needs: "production-frontend-deploy"
     name: "Run Production Healthcheck"
-    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-name: "Production Deployment Healthcheck"
-      test-project-path: "tests/Rundog.Acceptance.Tests"
-      test-filter: "Environment=Production"
+      test-project-path: "tests/Web.Acceptance.Tests"
+      test-filter: "FullyQualifiedName~Acceptance.Tests&Environment=Production"
       base-url: ${{ needs.production-frontend-deploy.outputs.production-url }}
 
   auto-destroy-staging:
@@ -404,7 +377,7 @@ jobs:
       needs.run-acceptance-tests.result == 'success' &&
       needs.production-frontend-deploy.result == 'success'
     name: "Auto Destroy Staging Environment"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"

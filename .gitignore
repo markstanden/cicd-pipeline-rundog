@@ -77,3 +77,6 @@ playwright.config.ts.backup
 
 # NPM/Node/Tailwind
 **/node_modules
+
+# Tailwind build output
+src/Web/wwwroot/css/site.css
