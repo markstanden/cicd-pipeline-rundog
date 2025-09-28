@@ -11,14 +11,14 @@ permissions:
 jobs:
   build-succeeds:
     name: "Build Solution"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-build--solution.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/dotnet-build--solution.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-unit-tests:
     needs: [ "build-succeeds" ]
     name: "Run Unit Tests"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-test--unit-tests.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/dotnet-test--unit-tests.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-filter: "FullyQualifiedName~Unit.Tests"
@@ -26,7 +26,7 @@ jobs:
   run-integration-tests:
     needs: [ "build-succeeds" ]
     name: "Run Integration Tests"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-test--integration-tests.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/dotnet-test--integration-tests.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-filter: "FullyQualifiedName~Integration.Tests"
@@ -34,7 +34,7 @@ jobs:
   build-staging-infrastructure:
     needs: [ "build-succeeds" ]
     name: "Build Staging Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@main
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
@@ -48,7 +48,7 @@ jobs:
   build-production-infrastructure:
     needs: [ "build-succeeds" ]
     name: "Build Production Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@main
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
@@ -62,7 +62,7 @@ jobs:
   build-frontend-release:
     needs: [ "build-succeeds" ]
     name: "Build Frontend Artifact"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-build--blazor-frontend.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/dotnet-build--blazor-frontend.yml@main
     permissions:
       contents: read
       actions: write
@@ -212,7 +212,7 @@ jobs:
   run-acceptance-tests:
     needs: [ "run-staging-healthcheck", "staging-frontend-deploy" ]
     name: "Run Acceptance Tests"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-project-path: "tests/Web.Acceptance.Tests"
@@ -325,7 +325,7 @@ jobs:
   run-healthcheck:
     needs: "production-frontend-deploy"
     name: "Run Production Healthcheck"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-name: "Production Deployment Healthcheck"
@@ -339,7 +339,7 @@ jobs:
       needs.run-acceptance-tests.result == 'success' &&
       needs.production-frontend-deploy.result == 'success'
     name: "Auto Destroy Staging Environment"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@main
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"

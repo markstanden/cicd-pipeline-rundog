@@ -11,21 +11,21 @@ permissions:
 jobs:
   check-formatting:
     name: "Code Formatting Compliance Check"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-format--solution.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/dotnet-format--solution.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   build-succeeds:
     needs: "check-formatting"
     name: "Build Solution"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-build--solution.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/dotnet-build--solution.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-unit-tests:
     needs: "build-succeeds"
     name: "Run Unit Tests"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-test--unit-tests.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/dotnet-test--unit-tests.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-filter: "FullyQualifiedName~Unit.Tests"
@@ -33,7 +33,7 @@ jobs:
   run-sonarqube-deep-analysis:
     needs: "run-unit-tests"
     name: "SonarQube Analysis"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-sonarqube.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    uses: markstanden/coding-standards/.github/workflows/dotnet-sonarqube.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
