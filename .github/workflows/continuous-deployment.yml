@@ -62,7 +62,7 @@ jobs:
   build-frontend-release:
     needs: [ "build-succeeds" ]
     name: "Build frontend release artifact"
-    uses: ./.github/workflows/build-frontend.yml
+    uses: ./.github/workflows/frontend-build.yml
     permissions:
       contents: read
       actions: write
