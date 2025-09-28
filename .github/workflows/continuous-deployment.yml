@@ -46,7 +46,7 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
   build-frontend-release:
-    needs: [ "build-succeeds" ]
+    needs: [ "run-unit-tests", "run-integration-tests" ]
     name: "Build frontend release artifact"
     uses: ./.github/workflows/frontend-build.yml
     permissions:
