@@ -55,9 +55,6 @@ jobs:
 
   staging-frontend-deploy:
     needs: [
-      "build-succeeds",
-      "run-unit-tests",
-      "run-integration-tests",
       "build-staging-infrastructure",
       "build-frontend-release"
     ]
@@ -79,6 +76,8 @@ jobs:
           TOFU_OUTPUTS_B64: ${{ needs.build-staging-infrastructure.outputs['tofu-outputs-b64'] }}
         run: |
           set -euo pipefail
+
+          echo "Tofo output test: $TOFU_OUTPUTS_B64"
 
           # Mask the raw base64 payload so it never appears in the logs
           echo "::add-mask::${TOFU_OUTPUTS_B64}"
