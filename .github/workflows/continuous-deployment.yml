@@ -62,6 +62,9 @@ jobs:
   build-frontend-release:
     needs: [ "build-succeeds" ]
     uses: ./.github/workflows/build-frontend.yml
+    permissions:
+      contents: read
+      actions: write
 
   staging-frontend-deploy:
     needs: [
