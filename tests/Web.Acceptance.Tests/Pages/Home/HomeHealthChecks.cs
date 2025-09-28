@@ -1,6 +1,7 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using Rundog.Acceptance.Tests.EnvironmentVariables;
+using Rundog.Acceptance.Tests.Extensions;
 using Rundog.Core.Constants;
 using Shouldly;
 
@@ -22,11 +23,25 @@ public class HomeHealthChecks: PageTest
         const string expected = Site.Title;
 
         // Act
-        await Page.GotoAsync(_pageUrl);
+        await Page.LoadAsync(_pageUrl);
 
         // Assert
         expected.ShouldNotBeNullOrWhiteSpace();
         await Expect(Page).ToHaveTitleAsync(expected);
+    }
+
+    [Fact]
+    public async Task Homepage_Displays_HeaderSection()
+    {
+        // Arrange
+        const string testId = TestIds.Header.Section;
+
+        // Act
+        await Page.LoadAsync(_pageUrl);
+        ILocator section = Page.GetByTestId(testId);
+
+        // Assert
+        await Expect(section).ToBeVisibleAsync();
     }
 
     [Fact]
@@ -36,7 +51,21 @@ public class HomeHealthChecks: PageTest
         const string testId = TestIds.Hero.Section;
 
         // Act
-        await Page.GotoAsync(_pageUrl);
+        await Page.LoadAsync(_pageUrl);
+        ILocator section = Page.GetByTestId(testId);
+
+        // Assert
+        await Expect(section).ToBeVisibleAsync();
+    }
+
+    [Fact]
+    public async Task Homepage_Displays_FooterSection()
+    {
+        // Arrange
+        const string testId = TestIds.Footer.Section;
+
+        // Act
+        await Page.LoadAsync(_pageUrl);
         ILocator section = Page.GetByTestId(testId);
 
         // Assert

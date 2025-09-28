@@ -1,6 +1,7 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using Rundog.Acceptance.Tests.EnvironmentVariables;
+using Rundog.Acceptance.Tests.Extensions;
 using Rundog.Core.Constants;
 using Shouldly;
 
@@ -20,10 +21,10 @@ public class HeroHealthChecks: PageTest
     {
         // Arrange
         const string testId = TestIds.Hero.Name;
-        const string expected = Site.Name;
+        const string expected = Hero.Name;
 
         // Act
-        await Page.GotoAsync(_pageUrl);
+        await Page.LoadAsync(_pageUrl);
         ILocator element = Page.GetByTestId(testId);
 
         // Assert
@@ -36,10 +37,10 @@ public class HeroHealthChecks: PageTest
     {
         // Arrange
         const string testId = TestIds.Hero.Slogan;
-        const string expected = Site.Slogan;
+        const string expected = Hero.Slogan;
 
         // Act
-        await Page.GotoAsync(_pageUrl);
+        await Page.LoadAsync(_pageUrl);
         ILocator element = Page.GetByTestId(testId);
 
         // Assert
@@ -52,10 +53,10 @@ public class HeroHealthChecks: PageTest
     {
         // Arrange
         const string testId = TestIds.Hero.Intro;
-        const string expected = Site.Slogan;
+        const string expected = Hero.Introduction;
 
         // Act
-        await Page.GotoAsync(_pageUrl);
+        await Page.LoadAsync(_pageUrl);
         ILocator element = Page.GetByTestId(testId);
 
         // Assert
