@@ -1,12 +1,14 @@
+@using Rundog.Core.Models
+
 <header data-testid="@TestIds.Header.Section">
     <section data-testid="@TestIds.Header.LinksSection">
         <ul>
-            <li>
-                <a href="https://github.com/markstanden">github</a>
-            </li>
-            <li>
-                <a href="https://www.linkedin.com/in/markstanden/">linkedin</a>
-            </li>
+            @foreach (Link link in Links.HeaderLinks)
+            {
+                <li>
+                    <a href="@link.Href">@link.Text</a>
+                </li>
+            }
         </ul>
     </section>
 </header>
