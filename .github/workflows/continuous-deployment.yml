@@ -34,7 +34,7 @@ jobs:
   build-staging-infrastructure:
     needs: [ "build-succeeds" ]
     name: "Build Staging Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@391d4ea
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@391d4eae815992eb544e626fb270d70e25766b51
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
@@ -202,7 +202,7 @@ jobs:
   build-production-infrastructure:
     needs: [ "build-succeeds", "staging-frontend-deploy", "run-staging-acceptance-tests" ]
     name: "Build Production Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@391d4ea
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@391d4eae815992eb544e626fb270d70e25766b51
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
