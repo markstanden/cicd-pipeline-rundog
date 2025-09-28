@@ -1,1 +1,11 @@
+global using Microsoft.Playwright;
+global using Microsoft.Playwright.Xunit;
+global using Rundog.Acceptance.Tests.EnvironmentVariables;
+global using Rundog.Acceptance.Tests.Extensions;
+global using Rundog.Core.Constants;
+global using Shouldly;
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Threading.Tasks;
 global using Xunit;

@@ -1,10 +1,3 @@
-using Microsoft.Playwright;
-using Microsoft.Playwright.Xunit;
-using Rundog.Acceptance.Tests.EnvironmentVariables;
-using Rundog.Acceptance.Tests.Extensions;
-using Rundog.Core.Constants;
-using Shouldly;
-
 namespace Rundog.Acceptance.Tests.Pages.Home;
 
 /// <summary>
