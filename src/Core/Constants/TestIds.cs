@@ -18,6 +18,33 @@ public static class TestIds
     }
 
     /// <summary>
+    /// Test handles for elements within the header section.
+    /// </summary>
+    public static class Header
+    {
+        /// <summary>
+        /// The identifier for the header section
+        /// </summary>
+        public const string Section = "header-section";
+
+        /// <summary>
+        /// The identifier for the links section within the header
+        /// </summary>
+        public const string LinksSection = "header-links-section";
+    }
+
+    /// <summary>
+    /// Test handles for elements within the footer section.
+    /// </summary>
+    public static class Footer
+    {
+        /// <summary>
+        /// The identifier for the footer section used in testing.
+        /// </summary>
+        public const string Section = "footer-section";
+    }
+
+    /// <summary>
     ///     Test handles for elements within the developer Hero
     /// </summary>
     public static class Hero
