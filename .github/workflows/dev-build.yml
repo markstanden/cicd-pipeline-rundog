@@ -6,7 +6,7 @@ on:
 jobs:
   build-development-infrastructure:
     name: "Build Development Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu/opentofu-build-infrastructure.yml@7a07baa90c5e43079abc90855dd72eaaa6b1d330
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@a65ce01e012c56e58163c135b129dcb9698fd615
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
