@@ -57,7 +57,7 @@ csharp_style_var_for_built_in_types = false:suggestion
 csharp_style_var_when_type_is_apparent = false:suggestion
 csharp_style_var_elsewhere = false:suggestion
 
-# Prefer target-typed new()
+# Prefer target-typed new() object creation
 csharp_style_implicit_object_creation_when_type_is_apparent = true:suggestion
 
 ## Expression-bodied members
