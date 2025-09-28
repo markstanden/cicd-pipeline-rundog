@@ -61,17 +61,7 @@ jobs:
 
   build-frontend-release:
     needs: [ "build-succeeds" ]
-    name: "Build Frontend Artifact"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-build--blazor-frontend.yml@main
-    permissions:
-      contents: read
-      actions: write
-    with:
-      dotnet-version: ${{ vars.DOTNET_VERSION }}
-      node-version: ${{ vars.NODE_VERSION }}
-      web-project-path: "src/Web"
-      artifact-name: "rundog-frontend"
-      retention-days: 30
+    uses: ./.github/workflows/build-frontend.yml
 
   staging-frontend-deploy:
     needs: [
