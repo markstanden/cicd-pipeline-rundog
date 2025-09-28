@@ -62,54 +62,13 @@ jobs:
   build-frontend-release:
     needs: [ "build-succeeds" ]
     name: "Build Frontend Artifact"
-    runs-on: "ubuntu-latest"
-    permissions:
-      contents: read
-      actions: write  # needed to save caches
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v4
-
-      - name: "Setup Node.js"
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: "src/Web/package-lock.json"
-
-      - name: "Install npm dependencies"
-        working-directory: src/Web
-        run: npm ci
-
-      - name: "Setup .NET"
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ vars.DOTNET_VERSION }}
-
-      - name: "Cache NuGet packages"
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json', '**/*.csproj', '**/*.sln') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-
-      - name: "Restore dependencies"
-        run: dotnet restore src/Web/Web.csproj
-
-      - name: "Build"
-        run: dotnet build src/Web/Web.csproj --no-restore --configuration Release
-
-      - name: "Publish"
-        run: dotnet publish src/Web/Web.csproj --no-restore --configuration Release --output ./publish
-
-      - name: "Upload build artifacts"
-        uses: actions/upload-artifact@v4
-        with:
-          name: "rundog-frontend"
-          if-no-files-found: error
-          path: ./publish
-          retention-days: 30
+    uses: markstanden/coding-standards/.github/workflows/dotnet-build--blazor-frontend.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    with:
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
+      node-version: "22"
+      web-project-path: "src/Web"
+      artifact-name: "rundog-frontend"
+      retention-days: 30
 
   staging-frontend-deploy:
     needs: [
