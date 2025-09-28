@@ -32,7 +32,7 @@ public class HeaderHealthChecks: PageTest
 
     [Theory]
     [InlineData("github", "github.com")]
-    // [InlineData("linkedin", "linkedin.com")]
+    [InlineData("linkedin", "linkedin.com")]
     public async Task Header_Contains_ExpectedLink(string expectedLinkText, string expectedHref)
     {
         // Arrange
