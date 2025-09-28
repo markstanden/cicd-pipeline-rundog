@@ -12,7 +12,7 @@ namespace Rundog.Acceptance.Tests.Pages.Home;
 /// the expected information is desplayed on the screen and is not empty.
 /// </summary>
 [Trait("Environment", "Production")]
-public class HeaderHealthChecks: PageTest
+public class HeaderHealthChecks : PageTest
 {
     private readonly string _pageUrl = BaseUrl.Value;
 

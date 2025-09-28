@@ -13,7 +13,7 @@ public static class Hero
     /// <summary>
     ///     The catchy slogan that embodies the site
     /// </summary>
-    public const string Slogan ="Think twice, code once.";
+    public const string Slogan = "Think twice, code once.";
 
     /// <summary>
     ///     A brief introduction describing the expertise and areas of focus.
