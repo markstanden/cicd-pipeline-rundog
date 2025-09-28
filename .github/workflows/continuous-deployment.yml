@@ -8,12 +8,6 @@ name: "Continuous Deployment"
 permissions:
   contents: read
 
-env:
-  FRONTEND_ARTIFACT_NAME: "rundog-frontend"
-  WEB_PROJECT_PATH: "src/Web"
-  SWA_APP_LOCATION: "publish/wwwroot"
-  SWA_OUTPUT_LOCATION: ""
-
 jobs:
   build-succeeds:
     name: "Build Solution"
@@ -76,7 +70,7 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       node-version: ${{ vars.NODE_VERSION }}
       web-project-path: "src/Web"
-      artifact-name: ${{ env.FRONTEND_ARTIFACT_NAME }}
+      artifact-name: "rundog-frontend"
       retention-days: 30
 
   staging-frontend-deploy:
