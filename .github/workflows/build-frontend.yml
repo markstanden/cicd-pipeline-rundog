@@ -1,0 +1,33 @@
+name: "Frontend Build"
+on:
+  workflow_call:
+    inputs:
+      retention-days:
+        type: number
+        default: 1
+        description: "Artifact retention days"
+      web-project-path:
+        type: string
+        default: "src/Web"
+        description: "Path to the web project directory"
+      artifact-name:
+        type: string
+        default: "frontend-build-artifact"
+        description: "Name for the build artifact"
+    outputs:
+      artifact-name:
+        description: "Name of the built artifact"
+        value: ${{ inputs.artifact-name }}
+
+jobs:
+  build:
+    uses: markstanden/coding-standards/.github/workflows/dotnet-build--blazor-frontend.yml@main
+    permissions:
+      contents: read
+      actions: write
+    with:
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
+      node-version: ${{ vars.NODE_VERSION }}
+      web-project-path: ${{ inputs.web-project-path }}
+      artifact-name: ${{ inputs.artifact-name }}
+      retention-days: ${{ inputs.retention-days }}
