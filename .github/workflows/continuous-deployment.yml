@@ -13,22 +13,20 @@ env:
   WEB_PROJECT_PATH: "src/Web"
   SWA_APP_LOCATION: "publish/wwwroot"
   SWA_OUTPUT_LOCATION: ""
-  NODE_VERSION: ${{ vars.NODE_VERSION }}
-  DOTNET_VERSION: ${{ vars.DOTNET_VERSION }}
 
 jobs:
   build-succeeds:
     name: "Build Solution"
     uses: markstanden/coding-standards/.github/workflows/dotnet-build--solution.yml@main
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-unit-tests:
     needs: [ "build-succeeds" ]
     name: "Run Unit Tests"
     uses: markstanden/coding-standards/.github/workflows/dotnet-test--unit-tests.yml@main
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-filter: "FullyQualifiedName~Unit.Tests"
 
   run-integration-tests:
@@ -36,7 +34,7 @@ jobs:
     name: "Run Integration Tests"
     uses: markstanden/coding-standards/.github/workflows/dotnet-test--integration-tests.yml@main
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-filter: "FullyQualifiedName~Integration.Tests"
 
   build-staging-infrastructure:
@@ -75,8 +73,8 @@ jobs:
       contents: read
       actions: write
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
-      node-version: "22"
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
+      node-version: ${{ vars.NODE_VERSION }}
       web-project-path: "src/Web"
       artifact-name: ${{ env.FRONTEND_ARTIFACT_NAME }}
       retention-days: 30
@@ -222,7 +220,7 @@ jobs:
     name: "Run Acceptance Tests"
     uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@main
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-project-path: "tests/Web.Acceptance.Tests"
       test-filter: "FullyQualifiedName~Acceptance.Tests"
       base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
@@ -335,7 +333,7 @@ jobs:
     name: "Run Production Healthcheck"
     uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@main
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-name: "Production Deployment Healthcheck"
       test-project-path: "tests/Web.Acceptance.Tests"
       test-filter: "FullyQualifiedName~Acceptance.Tests&Environment=Production"
