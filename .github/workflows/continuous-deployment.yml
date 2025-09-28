@@ -117,7 +117,7 @@ jobs:
       - name: "Download build artifacts"
         uses: actions/download-artifact@v4
         with:
-          name: "${{ env.FRONTEND_ARTIFACT_NAME }}"
+          name: ${{ needs.build-frontend-release.outputs.artifact-name }}
           path: ./publish
 
       - name: "Replace tokens for staging environment"
