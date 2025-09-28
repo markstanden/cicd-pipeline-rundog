@@ -23,6 +23,11 @@ public static class TestIds
     public static class Hero
     {
         /// <summary>
+        /// The identifier for the developer hero section used in testing.
+        /// </summary>
+        public const string Section = "hero-section";
+
+        /// <summary>
         /// The identifier for the developer's name used in testing.
         /// </summary>
         public const string Name = "hero-name";
