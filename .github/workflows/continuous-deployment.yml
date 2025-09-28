@@ -316,9 +316,35 @@ jobs:
           output_location: ""
           skip_app_build: true
 
-  run-healthcheck:
+  run-production-healthcheck:
     needs: "production-frontend-deploy"
     name: "Run Production Healthcheck"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Test production healthcheck endpoints"
+        run: |
+          set -euxo pipefail
+          BASE_URL="${{ needs.production-frontend-deploy.outputs.production-url }}"
+
+          # Define routes to test
+          ROUTES=(
+            ""
+            "/_framework/blazor.webassembly.js"
+            "/css/site.css"
+          )
+
+          echo "Testing production endpoints..."
+          for route in "${ROUTES[@]}"; do
+            FULL_URL="${BASE_URL}${route}"
+            echo "Testing: $FULL_URL"
+            curl -fsS --max-time 30 --retry 5 --retry-all-errors --retry-delay 5 -o /dev/null "$FULL_URL"
+            echo "✓ $FULL_URL is responding"
+          done
+          echo "All production endpoints are responding"
+
+  run-production-acceptance-tests:
+    needs: ["run-production-healthcheck", "production-frontend-deploy"]
+    name: "Run Production Acceptance Tests"
     uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@main
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
@@ -328,7 +354,7 @@ jobs:
       base-url: ${{ needs.production-frontend-deploy.outputs.production-url }}
 
   auto-destroy-staging:
-    needs: [ "run-staging-acceptance-tests", "production-frontend-deploy" ]
+    needs: [ "run-production-acceptance-tests", "run-staging-acceptance-tests", "production-frontend-deploy" ]
     if: >
       needs.run-staging-acceptance-tests.result == 'success' &&
       needs.production-frontend-deploy.result == 'success'
