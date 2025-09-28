@@ -55,7 +55,7 @@ public class HeaderHealthChecks : PageTest
         }
 
         (string? text, string? href) matchingPair = anchorTextPairs
-            .FirstOrDefault(pair => pair.text?.Contains(expectedLinkText) ?? false);
+            .FirstOrDefault(pair => pair.text?.Contains(expectedLinkText, StringComparison.OrdinalIgnoreCase) ?? false);
         matchingPair.text.ShouldNotBeNullOrWhiteSpace(
             $"Could not find a header link with text containing '{expectedLinkText}'");
 

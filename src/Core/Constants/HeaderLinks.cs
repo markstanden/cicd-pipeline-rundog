@@ -13,7 +13,7 @@ public static class Links
     /// </summary>
     public static readonly IEnumerable<Link> HeaderLinks =
     [
-        new("github", "https://github.com/markstanden"),
-        new("linkedin", "https://www.linkedin.com/in/markstanden/")
+        new("GitHub", "https://github.com/markstanden"),
+        new("LinkedIn", "https://www.linkedin.com/in/markstanden/")
     ];
 }
