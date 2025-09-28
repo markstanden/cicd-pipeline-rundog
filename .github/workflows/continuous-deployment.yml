@@ -45,20 +45,6 @@ jobs:
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
-  build-production-infrastructure:
-    needs: [ "build-succeeds" ]
-    name: "Build Production Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@main
-    with:
-      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
-      infrastructure-directory: "./infrastructure"
-      environment: "production"
-      project-name: "rundog"
-      backend-resource-group-name: ${{ vars.BACKEND_RG_PROD }}
-      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_PROD }}
-    secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-
   build-frontend-release:
     needs: [ "build-succeeds" ]
     name: "Build frontend release artifact"
@@ -203,7 +189,7 @@ jobs:
           done
           echo "All staging endpoints are responding"
 
-  run-acceptance-tests:
+  run-staging-acceptance-tests:
     needs: [ "run-staging-healthcheck", "staging-frontend-deploy" ]
     name: "Run Acceptance Tests"
     uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@main
@@ -213,8 +199,22 @@ jobs:
       test-filter: "FullyQualifiedName~Acceptance.Tests"
       base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
 
+  build-production-infrastructure:
+    needs: [ "build-succeeds", "staging-frontend-deploy", "run-staging-acceptance-tests" ]
+    name: "Build Production Environment Infrastructure"
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@main
+    with:
+      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
+      infrastructure-directory: "./infrastructure"
+      environment: "production"
+      project-name: "rundog"
+      backend-resource-group-name: ${{ vars.BACKEND_RG_PROD }}
+      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_PROD }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
   production-frontend-deploy:
-    needs: [ "build-frontend-release", "run-acceptance-tests", "build-production-infrastructure" ]
+    needs: [ "build-frontend-release", "run-staging-acceptance-tests", "build-production-infrastructure" ]
     name: "Deploy Frontend to production"
     runs-on: "ubuntu-latest"
     environment: "production"
@@ -328,9 +328,9 @@ jobs:
       base-url: ${{ needs.production-frontend-deploy.outputs.production-url }}
 
   auto-destroy-staging:
-    needs: [ "run-acceptance-tests", "production-frontend-deploy" ]
+    needs: [ "run-staging-acceptance-tests", "production-frontend-deploy" ]
     if: >
-      needs.run-acceptance-tests.result == 'success' &&
+      needs.run-staging-acceptance-tests.result == 'success' &&
       needs.production-frontend-deploy.result == 'success'
     name: "Auto Destroy Staging Environment"
     uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@main
