@@ -63,6 +63,9 @@ jobs:
     needs: [ "build-succeeds" ]
     name: "Build Frontend Artifact"
     uses: markstanden/coding-standards/.github/workflows/dotnet-build--blazor-frontend.yml@a65ce01e012c56e58163c135b129dcb9698fd615
+    permissions:
+      contents: read
+      actions: write
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       node-version: "22"
