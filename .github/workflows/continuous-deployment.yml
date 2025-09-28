@@ -11,14 +11,14 @@ permissions:
 jobs:
   build-succeeds:
     name: "Build Solution"
-    uses: markstanden/coding-standards/.github/workflows/build.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/build.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   run-unit-tests:
     needs: [ "build-succeeds" ]
     name: "Run Unit Tests"
-    uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-filter: "FullyQualifiedName~Unit.Tests"
@@ -26,7 +26,7 @@ jobs:
   run-integration-tests:
     needs: [ "build-succeeds" ]
     name: "Run Integration Tests"
-    uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-filter: "FullyQualifiedName~Integration.Tests"
@@ -34,7 +34,7 @@ jobs:
   build-staging-infrastructure:
     needs: [ "build-succeeds" ]
     name: "Build Staging Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
@@ -48,7 +48,7 @@ jobs:
   build-production-infrastructure:
     needs: [ "build-succeeds" ]
     name: "Build Production Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
@@ -250,7 +250,7 @@ jobs:
   run-acceptance-tests:
     needs: [ "run-staging-healthcheck", "staging-frontend-deploy" ]
     name: "Run Acceptance Tests"
-    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-project-path: "tests/Web.Acceptance.Tests"
@@ -363,7 +363,7 @@ jobs:
   run-healthcheck:
     needs: "production-frontend-deploy"
     name: "Run Production Healthcheck"
-    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       test-name: "Production Deployment Healthcheck"
@@ -377,7 +377,7 @@ jobs:
       needs.run-acceptance-tests.result == 'success' &&
       needs.production-frontend-deploy.result == 'success'
     name: "Auto Destroy Staging Environment"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@ab5f499da58f2e04ee21ec3903b08c1b5e5f033d
+    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@551595f55461e04d117578d969317a6e67ac00f2
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "./infrastructure"
