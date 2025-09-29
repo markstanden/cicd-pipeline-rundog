@@ -37,7 +37,7 @@ jobs:
     uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@main
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
-      infrastructure-directory: "./infrastructure"
+      infrastructure-directory: "infrastructure"
       environment: "staging"
       project-name: "rundog"
       backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
