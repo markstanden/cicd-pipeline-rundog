@@ -38,6 +38,7 @@ jobs:
     with:
       opentofu-version: ${{ vars.OPENTOFU_VERSION }}
       infrastructure-directory: "infrastructure"
+      output-artifact-name: "opentofu-outputs-rundog-staging-${{ github.run_id }}"
       environment: "staging"
       project-name: "rundog"
       backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
@@ -72,12 +73,12 @@ jobs:
     steps:
       - name: "Debug artifact name"
         run: |
-          echo "Artifact name: ${{ needs.build-staging-infrastructure.outputs.artifact-name }}"
+          echo "Artifact name: opentofu-outputs-rundog-staging-${{ github.run_id }}"
 
       - name: "Download Infrastructure Outputs"
         uses: actions/download-artifact@v4
         with:
-          name: ${{ needs.build-staging-infrastructure.outputs.artifact-name }}
+          name: "opentofu-outputs-rundog-staging-${{ github.run_id }}"
 
       - name: "Parse Infrastructure Outputs"
         id: parse_staging_outputs
