@@ -84,12 +84,12 @@ jobs:
         run: |
           set -euo pipefail
 
-          if ! jq -e . .tofu_outputs.json > /dev/null; then
+          if ! jq -e . tofu_outputs.json > /dev/null; then
             echo "tofu-outputs is not valid JSON or is empty."
             exit 1
           fi
 
-          token=$(jq -r '.azure_static_web_app_api_token.value // empty' .tofu_outputs.json)
+          token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
 
           if [ -z "$token" ]; then
             echo "azure_static_web_app_api_token.value not found"
@@ -239,12 +239,12 @@ jobs:
 #        run: |
 #          set -euo pipefail
 #
-#          if ! jq -e . .tofu_outputs.json > /dev/null; then
+#          if ! jq -e . tofu_outputs.json > /dev/null; then
 #            echo "tofu-outputs is not valid JSON or is empty."
 #            exit 1
 #          fi
 #
-#          token=$(jq -r '.azure_static_web_app_api_token.value // empty' .tofu_outputs.json)
+#          token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
 #
 #          if [ -z "$token" ]; then
 #            echo "azure_static_web_app_api_token.value not found"
