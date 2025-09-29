@@ -70,6 +70,10 @@ jobs:
       group: staging-swa-deploy
       cancel-in-progress: true
     steps:
+      - name: "Debug artifact name"
+        run: |
+          echo "Artifact name: ${{ needs.build-staging-infrastructure.outputs.artifact-name }}"
+
       - name: "Download Infrastructure Outputs"
         uses: actions/download-artifact@v4
         with:
@@ -208,7 +212,7 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
   production-frontend-deploy:
-    needs: [ "build-frontend-release", "run-staging-acceptance-tests", "build-production-infrastructure" ]
+    needs: [ "build-production-infrastructure", "build-frontend-release", "run-staging-acceptance-tests" ]
     name: "Deploy Frontend to production"
     runs-on: "ubuntu-latest"
     environment: "production"
@@ -221,32 +225,34 @@ jobs:
       group: "production-swa-deploy"
       cancel-in-progress: true
     steps:
+      - name: "Debug artifact name"
+        run: |
+          echo "Artifact name: ${{ needs.build-production-infrastructure.outputs.artifact-name }}"
+
+      - name: "Download Infrastructure Outputs"
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build-production-infrastructure.outputs.artifact-name }}
+
       - name: "Parse Infrastructure Outputs"
         id: parse_production_outputs
-        env:
-          TOFU_OUTPUTS_B64: ${{ needs.build-production-infrastructure.outputs['tofu-outputs-b64'] }}
         run: |
           set -euo pipefail
-          echo "::add-mask::${TOFU_OUTPUTS_B64}"
-          printf '%s' "${TOFU_OUTPUTS_B64}" | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
-          if ! jq -e . tofu_outputs.json > /dev/null; then
+          
+          if ! jq -e . .tofu_outputs.json > /dev/null; then
             echo "tofu-outputs is not valid JSON or is empty."
             exit 1
           fi
-          token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
+          
+          token=$(jq -r '.azure_static_web_app_api_token.value // empty' .tofu_outputs.json)
+          
           if [ -z "$token" ]; then
-            echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
-            echo "Available top-level keys:"
-            jq -r 'paths | select(length==1) | join(".")' tofu_outputs.json || true
+            echo "azure_static_web_app_api_token.value not found"
             exit 1
           fi
+          
           echo "::add-mask::${token}"
           echo "token=${token}" >> $GITHUB_OUTPUT
-      - name: "Debug Production Outputs"
-        run: |
-          token="${{ steps.parse_production_outputs.outputs.token }}"
-          echo "::add-mask::${token}"
-          echo "Production SWA Token parsed with length: ${#token}"
 
       - name: "Download build artifacts"
         uses: actions/download-artifact@v4
