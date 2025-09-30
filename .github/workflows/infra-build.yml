@@ -46,8 +46,8 @@ jobs:
     name: "Build Infrastructure (${{ inputs.environment }})"
     uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@main
     with:
-      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
-      infrastructure-directory: ${{ infrastructure-directory }}
+      opentofu-version: ${{ inputs.opentofu-version }}
+      infrastructure-directory: ${{ inputs.infrastructure-directory }}
       output-artifact-name: ${{ inputs.artifact-name }}
       environment: ${{ inputs.environment }}
       project-name: ${{ inputs.project-name }}
