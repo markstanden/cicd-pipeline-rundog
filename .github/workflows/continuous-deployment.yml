@@ -61,6 +61,9 @@ jobs:
     ]
     name: "Deploy Frontend to staging"
     uses: ./.github/workflows/frontend-deploy.yml
+    permissions:
+      contents: read
+      actions: read
     with:
       environment: "staging"
       artifact-name: ${{ needs.build-frontend-release.outputs.artifact-name }}
