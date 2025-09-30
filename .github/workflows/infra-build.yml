@@ -1,4 +1,4 @@
-name: "Infrastructure Build (${{ inputs.environment }})"
+name: "Infrastructure Build"
 on:
   workflow_call:
     inputs:
