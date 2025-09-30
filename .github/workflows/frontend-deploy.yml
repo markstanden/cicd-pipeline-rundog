@@ -10,10 +10,14 @@ on:
         type: string
         default: "frontend-build-artifact"
         description: "Frontend artifact name"
-      infrastructure-outputs:
+      infrastructure-outputs-artifact-name:
         type: string
         required: true
-        description: "Base64 infrastructure outputs"
+        description: "Name of the artifact containing tofu outputs json file"
+      output-json-filename:
+        type: string
+        default: "tofu_outputs.json"
+        description: "Filename for the OpenTofu outputs JSON file"
       app-location:
         type: string
         default: "publish/wwwroot"
@@ -49,28 +53,30 @@ jobs:
       group: "${{ inputs.environment }}-swa-deploy"
       cancel-in-progress: true
     steps:
+      - name: "Download Infrastructure Outputs"
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.infrastructure-outputs-artifact-name }}
+
       - name: "Parse Infrastructure Outputs"
         id: parse_outputs
         env:
-          TOFU_OUTPUTS_B64: ${{ inputs.infrastructure-outputs }}
+          OUTPUT_FILENAME: ${{ inputs.output-json-filename }}
         run: |
           set -euo pipefail
 
-          # Mask the raw base64 payload so it never appears in the logs
-          echo "::add-mask::${TOFU_OUTPUTS_B64}"
-
-          # Decode into JSON file for parsing
-          printf '%s' "${TOFU_OUTPUTS_B64}" | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
-          if ! jq -e . tofu_outputs.json > /dev/null; then
+          # Verify JSON file exists and is valid
+          if ! jq -e . $OUTPUT_FILENAME > /dev/null; then
             echo "tofu-outputs is not valid JSON or is empty."
             exit 1
           fi
-          token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
+
+          token=$(jq -r '.azure_static_web_app_api_token.value // empty' $OUTPUT_FILENAME)
 
           if [ -z "$token" ]; then
             echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
             echo "Available top-level keys:"
-            jq -r 'paths | select(length==1) | join(".")' tofu_outputs.json || true
+            jq -r 'paths | select(length==1) | join(".")' $OUTPUT_FILENAME || true
             exit 1
           fi
 
