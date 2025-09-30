@@ -2,6 +2,16 @@ name: "Frontend Build"
 on:
   workflow_call:
     inputs:
+      dotnet-version:
+        description: ".NET SDK version"
+        type: string
+        required: false
+        default: "8.0.x"
+      node-version:
+        description: "Node.js version"
+        type: string
+        required: false
+        default: "22"
       retention-days:
         type: number
         default: 1
@@ -26,8 +36,8 @@ jobs:
       contents: read
       actions: write
     with:
-      dotnet-version: ${{ vars.DOTNET_VERSION }}
-      node-version: ${{ vars.NODE_VERSION }}
+      dotnet-version: ${{ inputs.dotnet-version }}
+      node-version: ${{ inputs.node-version }}
       web-project-path: ${{ inputs.web-project-path }}
       artifact-name: ${{ inputs.artifact-name }}
       retention-days: ${{ inputs.retention-days }}
