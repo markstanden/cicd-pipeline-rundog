@@ -76,7 +76,7 @@ jobs:
     with:
       environment: "staging"
       base-url: ${{ needs.staging-frontend-deploy.outputs.deployment-url }}
-      dotnet-version: {{ vars.DOTNET_VERSION }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
 
 #  build-production-infrastructure:
 #    needs: [ "staging-frontend-deploy", "run-staging-acceptance-tests" ]
