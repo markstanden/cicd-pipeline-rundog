@@ -53,6 +53,9 @@ jobs:
     permissions:
       contents: read
       actions: write
+    with:
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
+      node-version: ${{ vars.NODE_VERSION }}
 
   staging-frontend-deploy:
     needs: [
