@@ -1,6 +1,7 @@
 name: "Frontend Build Release"
 on:
   workflow_call:
+
     inputs:
       dotnet-version:
         description: ".NET SDK version"
