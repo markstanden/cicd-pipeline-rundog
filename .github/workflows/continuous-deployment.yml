@@ -31,8 +31,8 @@ jobs:
 
   deploy-staging:
     needs: [
-      "build-staging",
-      "build-release"
+      "build-release",
+      "build-staging"
     ]
     name: "Deploy Frontend to staging"
     uses: ./.github/workflows/frontend-deploy.yml
@@ -66,7 +66,7 @@ jobs:
 
   deploy-prod:
     needs: [
-      "build-frontend-release",
+      "build-release",
       "build-prod"
     ]
     name: "Deploy Frontend to staging"
