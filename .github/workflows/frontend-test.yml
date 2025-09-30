@@ -1,6 +1,7 @@
-name: "Frontend Test"
+name: "Frontend Test (${{ inputs.environment }})"
 on:
   workflow_call:
+
     inputs:
       dotnet-version:
         description: ".NET SDK version"
