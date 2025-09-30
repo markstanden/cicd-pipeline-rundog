@@ -1,35 +1,40 @@
-name: "Deploy Frontend"
+name: "Frontend Deploy"
 on:
   workflow_call:
     inputs:
       environment:
-        type: string
-        required: true
         description: "e.g. staging or production"
-      artifact-name:
-        type: string
-        default: "frontend-build-artifact"
-        description: "Frontend artifact name"
-      infrastructure-outputs-artifact-name:
         type: string
         required: true
+      artifact-name:
+        description: "Frontend artifact name"
+        type: string
+        required: false
+        default: "frontend-build-artifact"
+      infrastructure-outputs-artifact-name:
         description: "Name of the artifact containing tofu outputs json file"
+        type: string
+        required: true
       output-json-filename:
-        type: string
-        default: "tofu_outputs.json"
         description: "Filename for the OpenTofu outputs JSON file"
+        type: string
+        required: false
+        default: "tofu_outputs.json"
       app-location:
-        type: string
-        default: "publish/wwwroot"
         description: "App location for SWA deployment"
+        type: string
+        required: false
+        default: "publish/wwwroot"
       output-location:
-        type: string
-        default: ""
         description: "Output location for SWA deployment"
-      swa-action:
         type: string
-        default: "upload"
+        required: false
+        default: ""
+      swa-action:
         description: "Static Web App action"
+        type: string
+        required: false
+        default: "upload"
     outputs:
       deployment-url:
         description: "Deployed application URL"
