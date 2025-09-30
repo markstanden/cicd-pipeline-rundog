@@ -30,7 +30,7 @@ jobs:
       backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
       backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
     secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
 
   staging-frontend-deploy:
     needs: [
