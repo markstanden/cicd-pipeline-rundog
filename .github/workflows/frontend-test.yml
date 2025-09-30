@@ -1,0 +1,25 @@
+name: "Frontend Test"
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "e.g. staging or production"
+        type: string
+        required: true
+      base-url:
+        description: "Base url to test"
+        type: string
+        required: true
+      routes:
+        description: "Routes to test, relative to the base-url"
+        type: string
+        required: false
+        default: '["", "/_framework/blazor.webassembly.js", "/css/site.css"]'
+
+jobs:
+  run-healthcheck:
+    name: "Quick ${{inputs.environment}} Healthcheck"
+    uses: markstanden/coding-standards/.github/workflows/healthcheck--curl-endpoints.yml@main
+    with:
+      base-url: ${{ inputs.base-url }}
+      routes: ${{ inputs.routes }}
