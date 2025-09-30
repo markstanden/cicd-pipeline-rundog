@@ -65,8 +65,6 @@ jobs:
       environment: "staging"
       artifact-name: ${{ needs.build-frontend-release.outputs.artifact-name }}
       infrastructure-outputs-artifact-name: "opentofu-outputs-rundog-staging-${{ github.run_id }}"
-    outputs:
-      staging-url: ${{ jobs.deploy.outputs.deployment-url }}
 
   run-staging-healthcheck:
     needs: "staging-frontend-deploy"
@@ -76,7 +74,7 @@ jobs:
       - name: Test staging healthcheck endpoints
         run: |
           set -euxo pipefail
-          BASE_URL="${{ needs.staging-frontend-deploy.outputs.staging-url }}"
+          BASE_URL="${{ needs.staging-frontend-deploy.outputs.deployment-url }}"
 
           # Define routes to test
           ROUTES=(
@@ -102,7 +100,7 @@ jobs:
 #      dotnet-version: ${{ vars.DOTNET_VERSION }}
 #      test-project-path: "tests/Web.Acceptance.Tests"
 #      test-filter: "FullyQualifiedName~Acceptance.Tests"
-#      base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
+#      base-url: ${{ needs.staging-frontend-deploy.outputs.deployment-url }}
 #
 #  build-production-infrastructure:
 #    needs: [ "staging-frontend-deploy", "run-staging-acceptance-tests" ]
