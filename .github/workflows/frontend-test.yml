@@ -1,4 +1,4 @@
-name: "Frontend Test (${{inputs.environment}})"
+name: "Frontend Test"
 on:
   workflow_call:
     inputs:
