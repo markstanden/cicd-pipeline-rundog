@@ -72,28 +72,10 @@ jobs:
   run-staging-healthcheck:
     needs: "staging-frontend-deploy"
     name: "Run Staging Healthcheck"
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: Test staging healthcheck endpoints
-        run: |
-          set -euxo pipefail
-          BASE_URL="${{ needs.staging-frontend-deploy.outputs.deployment-url }}"
-
-          # Define routes to test
-          ROUTES=(
-            ""
-            "/_framework/blazor.webassembly.js"
-            "/css/site.css"
-          )
-
-          echo "Testing staging endpoints..."
-          for route in "${ROUTES[@]}"; do
-            FULL_URL="${BASE_URL}${route}"
-            echo "Testing: $FULL_URL"
-            curl -fsS --max-time 30 --retry 5 --retry-all-errors --retry-delay 5 -o /dev/null "$FULL_URL"
-            echo "✓ $FULL_URL is responding"
-          done
-          echo "All staging endpoints are responding"
+    uses:  markstanden/coding-standards/.github/workflows/healthcheck--curl-endpoints.yml@main
+    with:
+      base-url: ${{ needs.staging-frontend-deploy.outputs.deployment-url }}
+      routes: '["", "/_framework/blazor.webassembly.js", "/css/site.css"]'
 
 #  run-staging-acceptance-tests:
 #    needs: [ "run-staging-healthcheck", "staging-frontend-deploy" ]
