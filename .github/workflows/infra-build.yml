@@ -12,26 +12,26 @@ on:
         required: false
         default: "rundog"
       backend-resource-group-name:
-        required: true
         type: string
+        required: true
       backend-storage-account-name:
+        type: string
         required: true
-        type: string
       opentofu-version:
-        required: false
         type: string
+        required: false
         default: "1.7.2"
       infrastructure-directory:
-        required: false
         type: string
+        required: false
         default: "infrastructure"
       backend-container-name:
-        required: false
         type: string
+        required: false
         default: "tfstate"
       retention-days:
-        required: false
         type: number
+        required: false
         default: 1
       artifact-prefix:
         type: string
