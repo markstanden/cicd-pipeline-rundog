@@ -1,7 +1,12 @@
-name: "Frontend Test"
+name: "Frontend Test (${{inputs.environment}})"
 on:
   workflow_call:
     inputs:
+      dotnet-version:
+        description: ".NET SDK version"
+        type: string
+        required: false
+        default: "8.0.x"
       environment:
         description: "e.g. staging or production"
         type: string
@@ -15,11 +20,31 @@ on:
         type: string
         required: false
         default: '["", "/_framework/blazor.webassembly.js", "/css/site.css"]'
+      test-project-path:
+        description: "Path to the acceptance test project from the project root"
+        type: string
+        required: false
+        default: "tests/Web.Acceptance.Tests"
+      test-filter:
+        description: "Filters to apply to tests within test project path"
+        type: string
+        required: false
+        default: "FullyQualifiedName~Acceptance.Tests"
 
 jobs:
   run-healthcheck:
-    name: "Quick ${{inputs.environment}} Healthcheck"
+    name: "Healthcheck (${{inputs.environment}})"
     uses: markstanden/coding-standards/.github/workflows/healthcheck--curl-endpoints.yml@main
     with:
       base-url: ${{ inputs.base-url }}
       routes: ${{ inputs.routes }}
+
+  run-acceptance-tests:
+    name: "Playwright Acceptance Tests (${{inputs.environment}})"
+    needs: [ "run-healthcheck" ]
+    uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@main
+    with:
+      dotnet-version: ${{ inputs.dotnet-version }}
+      test-project-path: ${{ inputs.test-project-path }}
+      test-filter: ${{ inputs.test-filter }}
+      base-url: ${{ inputs.base-url }}
