@@ -69,24 +69,15 @@ jobs:
       artifact-name: ${{ needs.build-frontend-release.outputs.artifact-name }}
       infrastructure-outputs-artifact-name: "opentofu-outputs-rundog-staging-${{ github.run_id }}"
 
-  run-staging-healthcheck:
+  staging-frontend-test:
     needs: "staging-frontend-deploy"
     name: "Run Staging Healthcheck"
     uses:  ./.github/workflows/frontend-test.yml
     with:
       environment: "staging"
       base-url: ${{ needs.staging-frontend-deploy.outputs.deployment-url }}
+      dotnet-version: {{ vars.DOTNET_VERSION }}
 
-#  run-staging-acceptance-tests:
-#    needs: [ "run-staging-healthcheck", "staging-frontend-deploy" ]
-#    name: "Run Acceptance Tests"
-#    uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@main
-#    with:
-#      dotnet-version: ${{ vars.DOTNET_VERSION }}
-#      test-project-path: "tests/Web.Acceptance.Tests"
-#      test-filter: "FullyQualifiedName~Acceptance.Tests"
-#      base-url: ${{ needs.staging-frontend-deploy.outputs.deployment-url }}
-#
 #  build-production-infrastructure:
 #    needs: [ "staging-frontend-deploy", "run-staging-acceptance-tests" ]
 #    name: "Build Production Environment Infrastructure"
