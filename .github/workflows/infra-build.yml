@@ -12,9 +12,9 @@ on:
         required: false
         default: "rundog"
       artifact-name:
+        description: "Name for the build artifact"
         type: string
         default: "frontend-build-artifact"
-        description: "Name for the build artifact"
       backend-resource-group-name:
         required: true
         type: string

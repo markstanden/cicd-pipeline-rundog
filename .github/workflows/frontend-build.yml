@@ -2,11 +2,6 @@ name: "Frontend Build Release"
 on:
   workflow_call:
     inputs:
-      artifact-name:
-        description: "Name for the build artifact"
-        type: string
-        required: true
-        default: "frontend-build-artifact"
       dotnet-version:
         description: ".NET SDK version"
         type: string
@@ -17,6 +12,11 @@ on:
         type: string
         required: false
         default: "22"
+      artifact-name:
+        description: "Name for the build artifact"
+        type: string
+        required: false
+        default: "frontend-build-artifact"
       retention-days:
         description: "Artifact retention days"
         type: number
