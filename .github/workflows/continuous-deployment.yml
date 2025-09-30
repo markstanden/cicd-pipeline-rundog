@@ -72,10 +72,10 @@ jobs:
   run-staging-healthcheck:
     needs: "staging-frontend-deploy"
     name: "Run Staging Healthcheck"
-    uses:  markstanden/coding-standards/.github/workflows/healthcheck--curl-endpoints.yml@main
+    uses:  ./.github/workflows/frontend-test.yml
     with:
+      environment: "staging"
       base-url: ${{ needs.staging-frontend-deploy.outputs.deployment-url }}
-      routes: '["", "/_framework/blazor.webassembly.js", "/css/site.css"]'
 
 #  run-staging-acceptance-tests:
 #    needs: [ "run-staging-healthcheck", "staging-frontend-deploy" ]
