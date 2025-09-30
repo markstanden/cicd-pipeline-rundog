@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  build-frontend-release:
+  build-release:
     name: "Build frontend release artifact"
     uses: ./.github/workflows/frontend-build.yml
     permissions:
@@ -19,41 +19,42 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       node-version: ${{ vars.NODE_VERSION }}
 
-#  build-staging-infrastructure:
-#    name: "Build Staging Environment Infrastructure"
-#    uses: ./.github/workflows/infra-build.yml
-#    with:
-#      environment: "staging"
-#      backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
-#      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
-#    secrets:
-#      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
-#
-#  staging-frontend-deploy:
-#    needs: [
-#      "build-staging-infrastructure",
-#      "build-frontend-release"
-#    ]
-#    name: "Deploy Frontend to staging"
-#    uses: ./.github/workflows/frontend-deploy.yml
-#    permissions:
-#      contents: read
-#      actions: read
-#    with:
-#      environment: "staging"
-#      artifact-name: ${{ needs.build-frontend-release.outputs.artifact-name }}
-#      infrastructure-outputs-artifact-name: ${{ needs.build-staging-infrastructure.outputs.artifact-name }}
-#
-#  staging-frontend-test:
-#    needs: "staging-frontend-deploy"
-#    name: "Run Staging Healthcheck"
-#    uses:  ./.github/workflows/frontend-test.yml
-#    with:
-#      environment: "staging"
-#      base-url: ${{ needs.staging-frontend-deploy.outputs.deployment-url }}
-#      dotnet-version: ${{ vars.DOTNET_VERSION }}
+  build-staging:
+    name: "Build Staging Environment Infrastructure"
+    uses: ./.github/workflows/infra-build.yml
+    with:
+      environment: "staging"
+      backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
+      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
+    secrets:
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
+
+  deploy-staging:
+    needs: [
+      "build-staging",
+      "build-release"
+    ]
+    name: "Deploy Frontend to staging"
+    uses: ./.github/workflows/frontend-deploy.yml
+    permissions:
+      contents: read
+      actions: read
+    with:
+      environment: "staging"
+      artifact-name: ${{ needs.build-release.outputs.artifact-name }}
+      infrastructure-outputs-artifact-name: ${{ needs.build-staging.outputs.artifact-name }}
+
+  test-staging:
+    needs: "deploy-staging"
+    name: "Run Staging Healthcheck"
+    uses:  ./.github/workflows/frontend-test.yml
+    with:
+      environment: "staging"
+      base-url: ${{ needs.deploy-staging.outputs.deployment-url }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   build-prod:
+    needs: "test-staging"
     name: "Build Production Environment Infrastructure"
     uses: ./.github/workflows/infra-build.yml
     with:
@@ -75,7 +76,7 @@ jobs:
       actions: read
     with:
       environment: "production"
-      artifact-name: ${{ needs.build-frontend-release.outputs.artifact-name }}
+      artifact-name: ${{ needs.build-release.outputs.artifact-name }}
       infrastructure-outputs-artifact-name: ${{ needs.build-prod.outputs.artifact-name }}
 
   test-prod:
@@ -87,8 +88,8 @@ jobs:
       base-url: ${{ needs.deploy-prod.outputs.deployment-url }}
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
-#  auto-destroy-staging:
-#    needs: [ "run-production-acceptance-tests", "run-staging-acceptance-tests", "production-frontend-deploy" ]
+#  destroy-staging:
+#    needs: [ "test-prod" ]
 #    if: >
 #      needs.run-staging-acceptance-tests.result == 'success' &&
 #      needs.production-frontend-deploy.result == 'success'
