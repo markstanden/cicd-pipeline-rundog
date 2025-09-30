@@ -11,10 +11,6 @@ on:
         type: string
         required: false
         default: "rundog"
-      artifact-name:
-        description: "Name for the build artifact"
-        type: string
-        default: "frontend-build-artifact"
       backend-resource-group-name:
         required: true
         type: string
@@ -37,9 +33,17 @@ on:
         required: false
         type: number
         default: 1
+      artifact-prefix:
+        type: string
+        required: false
+        default: "opentofu-outputs"
     secrets:
       azure-credentials:
         required: true
+    outputs:
+      artifact-name:
+        description: "The generated frontend build artifact name"
+        value: "${{ inputs.artifact-prefix }}-${{ inputs.project-name }}-${{ inputs.environment }}-${{ github.run_id }}"
 
 jobs:
   build-infrastructure:
@@ -48,7 +52,7 @@ jobs:
     with:
       opentofu-version: ${{ inputs.opentofu-version }}
       infrastructure-directory: ${{ inputs.infrastructure-directory }}
-      output-artifact-name: ${{ inputs.artifact-name }}
+      output-artifact-name: "${{ inputs.artifact-prefix }}-${{ inputs.project-name }}-${{ inputs.environment }}-${{ github.run_id }}"
       environment: ${{ inputs.environment }}
       project-name: ${{ inputs.project-name }}
       backend-resource-group-name: ${{ inputs.backend-resource-group-name}}
