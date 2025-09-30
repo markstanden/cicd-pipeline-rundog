@@ -60,107 +60,13 @@ jobs:
       "build-frontend-release"
     ]
     name: "Deploy Frontend to staging"
-    runs-on: "ubuntu-latest"
-    environment: "staging"
-    permissions:
-      contents: read
-      actions: read
+    uses: ./.github/workflows/frontend-deploy.yml
+    with:
+      environment: "staging"
+      artifact-name: ${{ needs.build-frontend-release.outputs.artifact-name }}
+      infrastructure-outputs-artifact-name: "opentofu-outputs-rundog-staging-${{ github.run_id }}"
     outputs:
-      staging-url: ${{ steps.staging_deploy.outputs.static_web_app_url }}
-    concurrency:
-      group: staging-swa-deploy
-      cancel-in-progress: true
-    steps:
-      - name: "Debug artifact name"
-        run: |
-          echo "Artifact name: opentofu-outputs-rundog-staging-${{ github.run_id }}"
-
-      - name: "Download Infrastructure Outputs"
-        uses: actions/download-artifact@v4
-        with:
-          name: "opentofu-outputs-rundog-staging-${{ github.run_id }}"
-
-      - name: "Parse Infrastructure Outputs"
-        id: parse_staging_outputs
-        run: |
-          set -euo pipefail
-
-          if ! jq -e . tofu_outputs.json > /dev/null; then
-            echo "tofu-outputs is not valid JSON or is empty."
-            exit 1
-          fi
-
-          token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
-
-          if [ -z "$token" ]; then
-            echo "azure_static_web_app_api_token.value not found"
-            exit 1
-          fi
-
-          echo "::add-mask::${token}"
-          echo "token=${token}" >> $GITHUB_OUTPUT
-
-      - name: "Download build artifacts"
-        uses: actions/download-artifact@v4
-        with:
-          name: "${{ needs.build-frontend-release.outputs.artifact-name }}"
-          path: ./publish
-
-      - name: "Replace tokens for staging environment"
-        shell: bash
-        env:
-          DEPLOY_ENVIRONMENT: "Staging"
-        run: |
-          set -euo pipefail
-
-          APPSETTINGS_PATH="./publish/wwwroot/appsettings.json"
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
-
-          # Verify appsettings.json exists and is non-empty
-          if [[ ! -f "$APPSETTINGS_PATH" ]]; then
-            echo "ERROR: appsettings.json not found at $APPSETTINGS_PATH"
-            exit 1
-          fi
-
-          if [[ ! -s "$APPSETTINGS_PATH" ]]; then
-            echo "ERROR: appsettings.json is empty at $APPSETTINGS_PATH"
-            exit 1
-          fi
-
-          echo "Processing appsettings.json at: $APPSETTINGS_PATH"
-
-          # Use jq (JSON processor) to safely update JSON values
-          # --arg creates variables that jq can use safely (handles escaping/quoting)
-          # $env and $ver reference the --arg variables inside the jq expression
-          # The pipe (|) chains the operations: set DeployEnvironment, then set AppVersion
-          jq --arg env "$DEPLOY_ENVIRONMENT" \
-            --arg ver "$SHORT_SHA" \
-            '.DeployEnvironment = $env | .AppVersion = $ver' \
-            "$APPSETTINGS_PATH" > temp.json
-
-          # Atomically replace the original file (avoids corruption if interrupted)
-          mv temp.json "$APPSETTINGS_PATH"
-
-          # Verify the JSON is still valid after our changes
-          if ! jq empty "$APPSETTINGS_PATH" 2>/dev/null; then
-            echo "ERROR: Generated JSON is invalid"
-            exit 1
-          fi
-
-          echo "✅ Successfully updated appsettings.json for $DEPLOY_ENVIRONMENT environment"
-          echo "Final content:"
-          cat "$APPSETTINGS_PATH"
-
-      - name: "Deploy to Azure Static Web App"
-        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9
-        id: staging_deploy
-        with:
-          azure_static_web_apps_api_token: ${{ steps.parse_staging_outputs.outputs.token }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "publish/wwwroot"
-          output_location: ""
-          skip_app_build: true
+      staging-url: ${{ jobs.deploy.outputs.deployment-url }}
 
   run-staging-healthcheck:
     needs: "staging-frontend-deploy"
