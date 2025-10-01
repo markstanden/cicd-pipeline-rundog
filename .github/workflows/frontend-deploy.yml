@@ -38,7 +38,7 @@ on:
     outputs:
       deployment-url:
         description: "Deployed application URL"
-        value: ${{ jobs.deploy.outputs.url }}
+        value: ${{ inputs.artifact-name }}
 
 env:
   APPSETTINGS_PATH: "./publish/wwwroot/appsettings.json"
