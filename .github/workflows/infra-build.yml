@@ -1,48 +1,67 @@
 name: "Infrastructure Build"
+
 on:
   workflow_call:
     inputs:
       environment:
-        description: "e.g. staging or production"
+        description: "Deployment environment (e.g. staging, production)"
         type: string
         required: true
+
       project-name:
-        description: ""
+        description: "Project name used in resource naming"
         type: string
         required: false
         default: "rundog"
+
       backend-resource-group-name:
+        description: "Azure resource group containing OpenTofu state storage"
         type: string
         required: true
+
       backend-storage-account-name:
+        description: "Azure storage account name for OpenTofu state"
         type: string
         required: true
+
       opentofu-version:
+        description: "Version of OpenTofu to use for infrastructure operations"
         type: string
         required: false
         default: "1.7.2"
+
       infrastructure-directory:
+        description: "Path to directory containing OpenTofu configuration files"
         type: string
         required: false
         default: "infrastructure"
+
       backend-container-name:
+        description: "Azure storage container name for state files"
         type: string
         required: false
         default: "tfstate"
+
       retention-days:
+        description: "Number of days to retain workflow artifacts"
         type: number
         required: false
-        default: 1
+        default: 7
+
       artifact-prefix:
+        description: "Prefix for generated artifact name"
         type: string
         required: false
         default: "opentofu-outputs"
+
     secrets:
       azure-credentials:
+        description: "Azure service principal credentials in JSON format"
         required: true
+
     outputs:
       artifact-name:
-        description: "The generated frontend build artifact name"
+        description: "Name of the generated infrastructure outputs artifact"
         value: "${{ inputs.artifact-prefix }}-${{ inputs.project-name }}-${{ inputs.environment }}-${{ github.run_id }}"
 
 jobs:
@@ -55,9 +74,8 @@ jobs:
       output-artifact-name: "${{ inputs.artifact-prefix }}-${{ inputs.project-name }}-${{ inputs.environment }}-${{ github.run_id }}"
       environment: ${{ inputs.environment }}
       project-name: ${{ inputs.project-name }}
-      backend-resource-group-name: ${{ inputs.backend-resource-group-name}}
+      backend-resource-group-name: ${{ inputs.backend-resource-group-name }}
       backend-storage-account-name: ${{ inputs.backend-storage-account-name }}
+      backend-container-name: ${{ inputs.backend-container-name }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.azure-credentials }}
-
-
