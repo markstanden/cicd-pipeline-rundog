@@ -11,10 +11,10 @@ permissions:
 jobs:
   build-release:
     name: "Build Release"
-    uses: ./.github/workflows/frontend-build.yml
     permissions:
       contents: read
       actions: write
+    uses: ./.github/workflows/frontend-build.yml
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       node-version: ${{ vars.NODE_VERSION }}
@@ -31,31 +31,28 @@ jobs:
 
   deploy-staging:
     name: "Deploy Staging"
-    needs: [
-      "build-release",
-      "build-staging"
-    ]
-    uses: ./.github/workflows/frontend-deploy.yml
+    needs: ["build-release", "build-staging"]
     permissions:
       contents: read
       actions: read
+    uses: ./.github/workflows/frontend-deploy.yml
     with:
       environment: "staging"
       artifact-name: ${{ needs.build-release.outputs.artifact-name }}
       infrastructure-outputs-artifact-name: ${{ needs.build-staging.outputs.artifact-name }}
 
   test-staging:
-    needs: "deploy-staging"
     name: "Test Staging"
-    uses:  ./.github/workflows/frontend-test.yml
+    needs: deploy-staging
+    uses: ./.github/workflows/frontend-test.yml
     with:
       environment: "staging"
       base-url: ${{ needs.deploy-staging.outputs.deployment-url }}
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   build-prod:
-    name: "Build Production"
-    needs: "test-staging"
+    name: "Build Production Infra"
+    needs: test-staging
     uses: ./.github/workflows/infra-build.yml
     with:
       environment: "production"
@@ -66,14 +63,11 @@ jobs:
 
   deploy-prod:
     name: "Deploy Production"
-    needs: [
-      "build-release",
-      "build-prod"
-    ]
-    uses: ./.github/workflows/frontend-deploy.yml
+    needs: ["build-release", "build-prod"]
     permissions:
       contents: read
       actions: read
+    uses: ./.github/workflows/frontend-deploy.yml
     with:
       environment: "production"
       artifact-name: ${{ needs.build-release.outputs.artifact-name }}
@@ -81,22 +75,19 @@ jobs:
 
   test-prod:
     name: "Test Production"
-    needs: "deploy-prod"
-    uses:  ./.github/workflows/frontend-test.yml
+    needs: deploy-prod
+    uses: ./.github/workflows/frontend-test.yml
     with:
       environment: "production"
       base-url: ${{ needs.deploy-prod.outputs.deployment-url }}
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   destroy-staging:
-    name: "Auto Destroy Staging Environment"
+    name: "Destroy Staging"
     if: >
       needs.test-staging.result == 'success' &&
       needs.test-prod.result == 'success'
-    needs: [
-      "test-staging",
-      "test-prod"
-    ]
+    needs: ["test-staging", "test-prod"]
     uses: ./.github/workflows/infra-destroy.yml
     with:
       environment: "staging"
