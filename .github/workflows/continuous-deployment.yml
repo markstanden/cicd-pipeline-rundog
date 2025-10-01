@@ -100,7 +100,7 @@ jobs:
     uses: ./.github/workflows/infra-destroy.yml
     with:
       environment: "staging"
-      backend-resource-group-name: ${{ vars.BACKEND_RG_PROD }}
-      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_PROD }}
+      backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
+      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
     secrets:
       azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
