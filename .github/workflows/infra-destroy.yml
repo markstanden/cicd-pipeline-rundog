@@ -1,0 +1,52 @@
+name: "Infrastructure Destroy"
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "e.g. staging or production"
+        type: string
+        required: true
+      project-name:
+        description: ""
+        type: string
+        required: false
+        default: "rundog"
+      backend-resource-group-name:
+        type: string
+        required: true
+      backend-storage-account-name:
+        type: string
+        required: true
+      opentofu-version:
+        type: string
+        required: false
+        default: "1.7.2"
+      infrastructure-directory:
+        type: string
+        required: false
+        default: "infrastructure"
+      backend-container-name:
+        type: string
+        required: false
+        default: "tfstate"
+      retention-days:
+        type: number
+        required: false
+        default: 1
+    secrets:
+      azure-credentials:
+        required: true
+
+jobs:
+  destroy-infrastructure:
+    name: "Destroy Infrastructure (${{ inputs.environment }})"
+    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@main
+    with:
+      opentofu-version: ${{ inputs.opentofu-version }}
+      infrastructure-directory: ${{ inputs.infrastructure-directory }}
+      environment: ${{ inputs.environment }}
+      project-name: ${{ inputs.project-name }}
+      backend-resource-group-name: ${{ inputs.backend-resource-group-name}}
+      backend-storage-account-name: ${{ inputs.backend-storage-account-name }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.azure-credentials }}
