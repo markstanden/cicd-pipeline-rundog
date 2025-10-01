@@ -1,40 +1,46 @@
 name: "Frontend Build Release"
+
 on:
   workflow_call:
-
     inputs:
       dotnet-version:
         description: ".NET SDK version"
         type: string
         required: false
         default: "8.0.x"
+
       node-version:
         description: "Node.js version"
         type: string
         required: false
         default: "22"
+
       artifact-name:
         description: "Name for the build artifact"
         type: string
         required: false
         default: "frontend-build-artifact"
+
       retention-days:
         description: "Artifact retention days"
         type: number
         required: false
-        default: 1
+        default: 7
+
       web-project-path:
         description: "Path to the web project directory"
         type: string
         required: false
         default: "src/Web"
+
       unit-test-filter:
-        description: "Test filter to uniquely isolate unit tests from other test projects"
+        description: "Test filter to uniquely isolate unit tests"
         type: string
         required: false
         default: "FullyQualifiedName~Unit.Tests"
+
       integration-test-filter:
-        description: "Test filter to uniquely isolate integration tests from other test projects"
+        description: "Test filter to uniquely isolate integration tests"
         type: string
         required: false
         default: "FullyQualifiedName~Integration.Tests"
@@ -42,39 +48,38 @@ on:
     outputs:
       artifact-name:
         description: "Name of the built artifact"
-        value: ${{ inputs.artifact-name }}
+        value: ${{ jobs.build-release.outputs.artifact-name }}
 
 jobs:
   dotnet-build:
-    if: false
     name: "Build Solution"
     uses: markstanden/coding-standards/.github/workflows/dotnet-build--solution.yml@main
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
 
   run-unit-tests:
-    if: false
-    needs: [ "dotnet-build" ]
     name: "Run Unit Tests"
+    needs: ["dotnet-build"]
     uses: markstanden/coding-standards/.github/workflows/dotnet-test--unit-tests.yml@main
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
       test-filter: ${{ inputs.unit-test-filter }}
 
   run-integration-tests:
-    if: false
-    needs: [ "dotnet-build" ]
     name: "Run Integration Tests"
+    needs: ["dotnet-build"]
     uses: markstanden/coding-standards/.github/workflows/dotnet-test--integration-tests.yml@main
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
       test-filter: ${{ inputs.integration-test-filter }}
 
   build-release:
-    uses: markstanden/coding-standards/.github/workflows/dotnet-build--blazor-frontend.yml@main
+    name: "Build Frontend Release"
+    needs: ["run-unit-tests", "run-integration-tests"]
     permissions:
       contents: read
       actions: write
+    uses: markstanden/coding-standards/.github/workflows/dotnet-build--blazor-frontend.yml@main
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
       node-version: ${{ inputs.node-version }}
