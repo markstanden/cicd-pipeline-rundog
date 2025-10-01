@@ -30,11 +30,11 @@ jobs:
       azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
 
   deploy-staging:
+    name: "Deploy Staging"
     needs: [
       "build-release",
       "build-staging"
     ]
-    name: "Deploy Staging"
     uses: ./.github/workflows/frontend-deploy.yml
     permissions:
       contents: read
@@ -54,8 +54,8 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   build-prod:
-    needs: "test-staging"
     name: "Build Production"
+    needs: "test-staging"
     uses: ./.github/workflows/infra-build.yml
     with:
       environment: "production"
@@ -65,11 +65,11 @@ jobs:
       azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
 
   deploy-prod:
+    name: "Deploy Production"
     needs: [
       "build-release",
       "build-prod"
     ]
-    name: "Deploy Production"
     uses: ./.github/workflows/frontend-deploy.yml
     permissions:
       contents: read
@@ -80,8 +80,8 @@ jobs:
       infrastructure-outputs-artifact-name: ${{ needs.build-prod.outputs.artifact-name }}
 
   test-prod:
-    needs: "deploy-prod"
     name: "Test Production"
+    needs: "deploy-prod"
     uses:  ./.github/workflows/frontend-test.yml
     with:
       environment: "production"
@@ -89,21 +89,18 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   destroy-staging:
+    name: "Auto Destroy Staging Environment"
+    if: >
+      needs.test-staging.result == 'success' &&
+      needs.test-prod.result == 'success'
     needs: [
       "test-staging",
       "test-prod"
     ]
-    if: >
-      needs.test-staging.result == 'success' &&
-      needs.test-prod.result == 'success'
-    name: "Auto Destroy Staging Environment"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@main
+    uses: ./.github/workflows/infra-destroy.yml
     with:
-      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
-      infrastructure-directory: "./infrastructure"
       environment: "staging"
-      project-name: "rundog"
-      backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
-      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
+      backend-resource-group-name: ${{ vars.BACKEND_RG_PROD }}
+      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_PROD }}
     secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
