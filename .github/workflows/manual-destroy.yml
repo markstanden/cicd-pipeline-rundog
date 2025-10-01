@@ -1,0 +1,65 @@
+name: "Manual Destroy Infrastructure"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to destroy"
+        type: choice
+        required: true
+        options:
+          - development
+          - staging
+          - production
+
+      confirm-destroy:
+        description: "Type 'DESTROY' to confirm"
+        type: string
+        required: true
+
+jobs:
+  validate-confirmation:
+    name: "Validate Destruction"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check confirmation word"
+        if: inputs.confirm-destroy != 'DESTROY'
+        run: |
+          echo "::error::Must type 'DESTROY' to confirm"
+          exit 1
+
+  destroy-dev:
+    name: "Destroy Development"
+    if: inputs.environment == 'development'
+    needs: validate-confirmation
+    uses: ./.github/workflows/infra-destroy.yml
+    with:
+      environment: "development"
+      backend-resource-group-name: ${{ vars.BACKEND_RG_DEV }}
+      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_DEV }}
+    secrets:
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
+
+  destroy-staging:
+    name: "Destroy Staging"
+    if: inputs.environment == 'staging'
+    needs: validate-confirmation
+    uses: ./.github/workflows/infra-destroy.yml
+    with:
+      environment: "staging"
+      backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
+      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
+    secrets:
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
+
+  destroy-prod:
+    name: "Destroy Production"
+    if: inputs.environment == 'production'
+    needs: validate-confirmation
+    uses: ./.github/workflows/infra-destroy.yml
+    with:
+      environment: "production"
+      backend-resource-group-name: ${{ vars.BACKEND_RG_PROD }}
+      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_PROD }}
+    secrets:
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
