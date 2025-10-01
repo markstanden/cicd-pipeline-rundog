@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build-release:
-    name: "Build frontend release artifact"
+    name: "Build Release"
     uses: ./.github/workflows/frontend-build.yml
     permissions:
       contents: read
@@ -20,7 +20,7 @@ jobs:
       node-version: ${{ vars.NODE_VERSION }}
 
   build-staging:
-    name: "Build Staging Environment Infrastructure"
+    name: "Build Staging Infra"
     uses: ./.github/workflows/infra-build.yml
     with:
       environment: "staging"
@@ -34,7 +34,7 @@ jobs:
       "build-release",
       "build-staging"
     ]
-    name: "Deploy Frontend to staging"
+    name: "Deploy Staging"
     uses: ./.github/workflows/frontend-deploy.yml
     permissions:
       contents: read
@@ -46,7 +46,7 @@ jobs:
 
   test-staging:
     needs: "deploy-staging"
-    name: "Run Staging Healthcheck"
+    name: "Test Staging"
     uses:  ./.github/workflows/frontend-test.yml
     with:
       environment: "staging"
@@ -55,7 +55,7 @@ jobs:
 
   build-prod:
     needs: "test-staging"
-    name: "Build Production Environment Infrastructure"
+    name: "Build Production"
     uses: ./.github/workflows/infra-build.yml
     with:
       environment: "production"
@@ -69,7 +69,7 @@ jobs:
       "build-release",
       "build-prod"
     ]
-    name: "Deploy Frontend to staging"
+    name: "Deploy Production"
     uses: ./.github/workflows/frontend-deploy.yml
     permissions:
       contents: read
@@ -80,7 +80,7 @@ jobs:
       infrastructure-outputs-artifact-name: ${{ needs.build-prod.outputs.artifact-name }}
 
   test-prod:
-    needs: "build-prod"
+    needs: "deploy-prod"
     name: "Test Production"
     uses:  ./.github/workflows/frontend-test.yml
     with:
@@ -88,19 +88,22 @@ jobs:
       base-url: ${{ needs.deploy-prod.outputs.deployment-url }}
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
-#  destroy-staging:
-#    needs: [ "test-prod" ]
-#    if: >
-#      needs.run-staging-acceptance-tests.result == 'success' &&
-#      needs.production-frontend-deploy.result == 'success'
-#    name: "Auto Destroy Staging Environment"
-#    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@main
-#    with:
-#      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
-#      infrastructure-directory: "./infrastructure"
-#      environment: "staging"
-#      project-name: "rundog"
-#      backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
-#      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
-#    secrets:
-#      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  destroy-staging:
+    needs: [
+      "test-staging",
+      "test-prod"
+    ]
+    if: >
+      needs.test-staging.result == 'success' &&
+      needs.test-prod.result == 'success'
+    name: "Auto Destroy Staging Environment"
+    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@main
+    with:
+      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
+      infrastructure-directory: "./infrastructure"
+      environment: "staging"
+      project-name: "rundog"
+      backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
+      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
