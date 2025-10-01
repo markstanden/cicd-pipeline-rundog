@@ -9,6 +9,9 @@ permissions:
   contents: read
 
 jobs:
+  # ============================================
+  # Build Artifacts
+  # ============================================
   build-release:
     name: "Build Release"
     permissions:
@@ -19,6 +22,9 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       node-version: ${{ vars.NODE_VERSION }}
 
+  # ============================================
+  # Staging Deployment
+  # ============================================
   build-staging:
     name: "Build Staging Infra"
     uses: ./.github/workflows/infra-build.yml
@@ -50,6 +56,9 @@ jobs:
       base-url: ${{ needs.deploy-staging.outputs.deployment-url }}
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
+  # ============================================
+  # Production Deployment
+  # ============================================
   build-prod:
     name: "Build Production Infra"
     needs: test-staging
@@ -82,6 +91,9 @@ jobs:
       base-url: ${{ needs.deploy-prod.outputs.deployment-url }}
       dotnet-version: ${{ vars.DOTNET_VERSION }}
 
+  # ============================================
+  # Cleanup
+  # ============================================
   destroy-staging:
     name: "Destroy Staging"
     if: >
