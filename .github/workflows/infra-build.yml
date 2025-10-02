@@ -54,6 +54,12 @@ on:
         required: false
         default: "opentofu-outputs"
 
+      debug-output:
+        description: "Enable verbose debug output to aid troubleshooting"
+        type: boolean
+        required: false
+        default: false
+
     secrets:
       azure-credentials:
         description: "Azure service principal credentials in JSON format"
@@ -77,5 +83,6 @@ jobs:
       backend-resource-group-name: ${{ inputs.backend-resource-group-name }}
       backend-storage-account-name: ${{ inputs.backend-storage-account-name }}
       backend-container-name: ${{ inputs.backend-container-name }}
+      debug-output: ${{ inputs.debug-output }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.azure-credentials }}
