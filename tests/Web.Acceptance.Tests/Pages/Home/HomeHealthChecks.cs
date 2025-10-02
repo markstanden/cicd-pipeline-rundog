@@ -38,6 +38,20 @@ public class HomeHealthChecks : PageTest
     }
 
     [Fact]
+    public async Task Homepage_Displays_MainSection()
+    {
+        // Arrange
+        const string testId = TestIds.Main.Section;
+
+        // Act
+        await Page.LoadAsync(_pageUrl);
+        ILocator section = Page.GetByTestId(testId);
+
+        // Assert
+        await Expect(section).ToBeVisibleAsync();
+    }
+
+    [Fact]
     public async Task Homepage_Displays_HeroSection()
     {
         // Arrange

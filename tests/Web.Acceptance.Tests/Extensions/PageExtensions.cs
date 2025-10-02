@@ -16,8 +16,7 @@ public static class PageExtensions
     {
         IResponse? response = await page.GotoAsync(url, options);
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
-        await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
-        await page.WaitForTimeoutAsync(1000);
+        await page.WaitForSelectorAsync($"[data-testid={TestIds.Main.Section}]");
         return response;
     }
 }

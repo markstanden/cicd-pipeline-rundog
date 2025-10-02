@@ -34,6 +34,17 @@ public static class TestIds
     }
 
     /// <summary>
+    /// Test handles for elements within the main content section.
+    /// </summary>
+    public static class Main
+    {
+        /// <summary>
+        /// The identifier for the main content section used in testing.
+        /// </summary>
+        public const string Section = "main-section";
+    }
+
+    /// <summary>
     /// Test handles for elements within the footer section.
     /// </summary>
     public static class Footer
