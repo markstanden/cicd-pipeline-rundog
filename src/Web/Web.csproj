@@ -20,18 +20,26 @@
         <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 
-  <Target Name="NpmInstallIfNeeded"
-          BeforeTargets="Build;Publish"
-          Condition="Exists('package.json') AND !Exists('node_modules')">
-    <Message Text="Running npm ci (first-time install)..." Importance="high" />
-    <Exec Command="npm ci" WorkingDirectory="$(MSBuildProjectDirectory)" />
-  </Target>
+    <PropertyGroup>
+        <NpmExe Condition="'$(OS)' == 'Windows_NT'">npm.cmd</NpmExe>
+        <NpmExe Condition="'$(NpmExe)' == ''">npm</NpmExe>
+    </PropertyGroup>
 
-  <Target Name="BuildTailwindCss"
+    <Target Name="NpmInstallIfNeeded"
+            BeforeTargets="Build;Publish"
+            Condition="Exists('package.json') AND !Exists('node_modules')">
+        <Message Text="Running npm ci (first-time install)..."
+                 Importance="high" />
+        <Exec Command="$(NpmExe) ci"
+              WorkingDirectory="$(MSBuildProjectDirectory)" />
+    </Target>
+
+    <Target Name="BuildTailwindCss"
           DependsOnTargets="NpmInstallIfNeeded"
           BeforeTargets="Build;Publish"
           Condition="Exists('package.json')">
-    <Message Text="Building Tailwind CSS for $(Configuration)..." Importance="high" />
+    <Message Text="Building Tailwind CSS for $(Configuration)..."
+             Importance="high" />
 
     <Exec Command="npm run build-css"
           Condition="'$(Configuration)'=='Debug'"
@@ -41,6 +49,5 @@
           Condition="'$(Configuration)'!='Debug'"
           WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
-
 
 </Project>

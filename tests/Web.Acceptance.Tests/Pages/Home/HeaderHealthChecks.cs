@@ -1,15 +1,8 @@
-using Microsoft.Playwright;
-using Microsoft.Playwright.Xunit;
-using Rundog.Acceptance.Tests.EnvironmentVariables;
-using Rundog.Acceptance.Tests.Extensions;
-using Rundog.Core.Constants;
-using Shouldly;
-
 namespace Rundog.Acceptance.Tests.Pages.Home;
 
 /// <summary>
-/// Passive healthcheck type checks used in both staging and production environments to validate that
-/// the expected information is desplayed on the screen and is not empty.
+/// Passive health check type checks used in both staging and production environments to validate that
+/// the expected information is displayed on the screen and is not empty.
 /// </summary>
 [Trait("Environment", "Production")]
 public class HeaderHealthChecks : PageTest
@@ -55,7 +48,7 @@ public class HeaderHealthChecks : PageTest
         }
 
         (string? text, string? href) matchingPair = anchorTextPairs
-            .FirstOrDefault(pair => pair.text?.Contains(expectedLinkText) ?? false);
+            .FirstOrDefault(pair => pair.text?.Contains(expectedLinkText, StringComparison.OrdinalIgnoreCase) ?? false);
         matchingPair.text.ShouldNotBeNullOrWhiteSpace(
             $"Could not find a header link with text containing '{expectedLinkText}'");
 

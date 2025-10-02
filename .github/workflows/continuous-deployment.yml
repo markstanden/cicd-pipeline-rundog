@@ -1,6 +1,6 @@
 name: "Continuous Deployment"
 
-"on":
+on:
   workflow_dispatch:
   push:
     branches: [ "main" ]
@@ -9,381 +9,124 @@ permissions:
   contents: read
 
 jobs:
-  build-succeeds:
-    name: "Build Solution"
-    uses: markstanden/coding-standards/.github/workflows/build.yml@551595f55461e04d117578d969317a6e67ac00f2
+  # ============================================
+  # Code Quality
+  # ============================================
+  test-repo:
+    name: "Test Repo"
+    uses: ./.github/workflows/repo-test.yml
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
+      sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
+      sonar-org: ${{ vars.SONAR_ORGANIZATION }}
+    secrets:
+      sonar-token: ${{ secrets.SONAR_TOKEN }}
 
-  run-unit-tests:
-    needs: [ "build-succeeds" ]
-    name: "Run Unit Tests"
-    uses: markstanden/coding-standards/.github/workflows/unit-tests.yml@551595f55461e04d117578d969317a6e67ac00f2
+  # ============================================
+  # Build Artifacts
+  # ============================================
+  build-release:
+    name: "Build Release"
+    needs: "test-repo"
+    permissions:
+      contents: read
+      actions: write
+    uses: ./.github/workflows/frontend-build.yml
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-      test-filter: "FullyQualifiedName~Unit.Tests"
+      node-version: ${{ vars.NODE_VERSION }}
 
-  run-integration-tests:
-    needs: [ "build-succeeds" ]
-    name: "Run Integration Tests"
-    uses: markstanden/coding-standards/.github/workflows/integration-tests.yml@551595f55461e04d117578d969317a6e67ac00f2
+  # ============================================
+  # Staging Deployment
+  # ============================================
+  build-staging:
+    name: "Build Staging Infra"
+    needs: "test-repo"
+    permissions:
+      contents: read
+      actions: write
+    uses: ./.github/workflows/infra-build.yml
     with:
-      dotnet-version: ${{ vars.DOTNET_VERSION }}
-      test-filter: "FullyQualifiedName~Integration.Tests"
-
-  build-staging-infrastructure:
-    needs: [ "build-succeeds" ]
-    name: "Build Staging Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@551595f55461e04d117578d969317a6e67ac00f2
-    with:
-      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
-      infrastructure-directory: "./infrastructure"
       environment: "staging"
-      project-name: "rundog"
       backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
       backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' }}
     secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
 
-  build-production-infrastructure:
-    needs: [ "build-succeeds" ]
-    name: "Build Production Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@551595f55461e04d117578d969317a6e67ac00f2
+  deploy-staging:
+    name: "Deploy Staging"
+    needs: ["build-release", "build-staging"]
+    permissions:
+      contents: read
+      actions: read
+    uses: ./.github/workflows/frontend-deploy.yml
     with:
-      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
-      infrastructure-directory: "./infrastructure"
+      environment: "staging"
+      artifact-name: ${{ needs.build-release.outputs.artifact-name }}
+      infrastructure-outputs-artifact-name: ${{ needs.build-staging.outputs.artifact-name }}
+
+  test-staging:
+    name: "Test Staging"
+    needs: deploy-staging
+    uses: ./.github/workflows/frontend-test.yml
+    with:
+      environment: "staging"
+      base-url: ${{ needs.deploy-staging.outputs.deployment-url }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
+
+  # ============================================
+  # Production Deployment
+  # ============================================
+  build-prod:
+    name: "Build Production Infra"
+    needs: test-staging
+    permissions:
+      contents: read
+      actions: write
+    uses: ./.github/workflows/infra-build.yml
+    with:
       environment: "production"
-      project-name: "rundog"
       backend-resource-group-name: ${{ vars.BACKEND_RG_PROD }}
       backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_PROD }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' }}
     secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
 
-  build-frontend-release:
-    needs: [ "build-succeeds" ]
-    name: "Build Frontend Artifact"
-    runs-on: "ubuntu-latest"
-    permissions:
-      contents: read
-      actions: write  # needed to save caches
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v4
-
-      - name: "Setup Node.js"
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: "src/Web/package-lock.json"
-
-      - name: "Install npm dependencies"
-        working-directory: src/Web
-        run: npm ci
-
-      - name: "Setup .NET"
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ vars.DOTNET_VERSION }}
-
-      - name: "Cache NuGet packages"
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json', '**/*.csproj', '**/*.sln') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-
-      - name: "Restore dependencies"
-        run: dotnet restore src/Web/Web.csproj
-
-      - name: "Build"
-        run: dotnet build src/Web/Web.csproj --no-restore --configuration Release
-
-      - name: "Publish"
-        run: dotnet publish src/Web/Web.csproj --no-restore --configuration Release --output ./publish
-
-      - name: "Upload build artifacts"
-        uses: actions/upload-artifact@v4
-        with:
-          name: "rundog-frontend"
-          if-no-files-found: error
-          path: ./publish
-          retention-days: 30
-
-  staging-frontend-deploy:
-    needs: [
-      "build-succeeds",
-      "run-unit-tests",
-      "run-integration-tests",
-      "build-staging-infrastructure",
-      "build-frontend-release"
-    ]
-    name: "Deploy Frontend to staging"
-    runs-on: "ubuntu-latest"
-    environment: "staging"
+  deploy-prod:
+    name: "Deploy Production"
+    needs: ["build-release", "build-prod"]
     permissions:
       contents: read
       actions: read
-    outputs:
-      staging-url: ${{ steps.staging_deploy.outputs.static_web_app_url }}
-    concurrency:
-      group: staging-swa-deploy
-      cancel-in-progress: true
-    steps:
-      - name: "Parse Infrastructure Outputs"
-        id: parse_staging_outputs
-        env:
-          TOFU_OUTPUTS_B64: ${{ needs.build-staging-infrastructure.outputs['tofu-outputs-b64'] }}
-        run: |
-          set -euo pipefail
-
-          # Mask the raw base64 payload so it never appears in the logs
-          echo "::add-mask::${TOFU_OUTPUTS_B64}"
-
-          # Decode into JSON file for parsing
-          printf '%s' "${TOFU_OUTPUTS_B64}" | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
-          if ! jq -e . tofu_outputs.json > /dev/null; then
-            echo "tofu-outputs is not valid JSON or is empty."
-            exit 1
-          fi
-          token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
-
-          if [ -z "$token" ]; then
-            echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
-            echo "Available top-level keys:"
-            jq -r 'paths | select(length==1) | join(".")' tofu_outputs.json || true
-            exit 1
-          fi
-
-          echo "::add-mask::${token}"
-          echo "token=${token}" >> $GITHUB_OUTPUT
-
-      - name: "Download build artifacts"
-        uses: actions/download-artifact@v4
-        with:
-          name: "rundog-frontend"
-          path: ./publish
-
-      - name: "Replace tokens for staging environment"
-        shell: bash
-        env:
-          DEPLOY_ENVIRONMENT: "Staging"
-        run: |
-          set -euo pipefail
-
-          APPSETTINGS_PATH="./publish/wwwroot/appsettings.json"
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
-
-          # Verify appsettings.json exists and is non-empty
-          if [[ ! -f "$APPSETTINGS_PATH" ]]; then
-            echo "ERROR: appsettings.json not found at $APPSETTINGS_PATH"
-            exit 1
-          fi
-
-          if [[ ! -s "$APPSETTINGS_PATH" ]]; then
-            echo "ERROR: appsettings.json is empty at $APPSETTINGS_PATH"
-            exit 1
-          fi
-
-          echo "Processing appsettings.json at: $APPSETTINGS_PATH"
-
-          # Use jq (JSON processor) to safely update JSON values
-          # --arg creates variables that jq can use safely (handles escaping/quoting)
-          # $env and $ver reference the --arg variables inside the jq expression
-          # The pipe (|) chains the operations: set DeployEnvironment, then set AppVersion
-          jq --arg env "$DEPLOY_ENVIRONMENT" \
-            --arg ver "$SHORT_SHA" \
-            '.DeployEnvironment = $env | .AppVersion = $ver' \
-            "$APPSETTINGS_PATH" > temp.json
-
-          # Atomically replace the original file (avoids corruption if interrupted)
-          mv temp.json "$APPSETTINGS_PATH"
-
-          # Verify the JSON is still valid after our changes
-          if ! jq empty "$APPSETTINGS_PATH" 2>/dev/null; then
-            echo "ERROR: Generated JSON is invalid"
-            exit 1
-          fi
-
-          echo "✅ Successfully updated appsettings.json for $DEPLOY_ENVIRONMENT environment"
-          echo "Final content:"
-          cat "$APPSETTINGS_PATH"
-
-      - name: "Deploy to Azure Static Web App"
-        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9
-        id: staging_deploy
-        with:
-          azure_static_web_apps_api_token: ${{ steps.parse_staging_outputs.outputs.token }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "publish/wwwroot"
-          output_location: ""
-          skip_app_build: true
-
-  run-staging-healthcheck:
-    needs: "staging-frontend-deploy"
-    name: "Run Staging Healthcheck"
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: Test staging healthcheck endpoints
-        run: |
-          set -euxo pipefail
-          BASE_URL="${{ needs.staging-frontend-deploy.outputs.staging-url }}"
-
-          # Define routes to test
-          ROUTES=(
-            ""
-            "/_framework/blazor.webassembly.js"
-            "/css/site.css"
-          )
-
-          echo "Testing staging endpoints..."
-          for route in "${ROUTES[@]}"; do
-            FULL_URL="${BASE_URL}${route}"
-            echo "Testing: $FULL_URL"
-            curl -fsS --max-time 30 --retry 5 --retry-all-errors --retry-delay 5 -o /dev/null "$FULL_URL"
-            echo "✓ $FULL_URL is responding"
-          done
-          echo "All staging endpoints are responding"
-
-  run-acceptance-tests:
-    needs: [ "run-staging-healthcheck", "staging-frontend-deploy" ]
-    name: "Run Acceptance Tests"
-    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@551595f55461e04d117578d969317a6e67ac00f2
+    uses: ./.github/workflows/frontend-deploy.yml
     with:
-      dotnet-version: ${{ vars.DOTNET_VERSION }}
-      test-project-path: "tests/Web.Acceptance.Tests"
-      test-filter: "FullyQualifiedName~Acceptance.Tests"
-      base-url: ${{ needs.staging-frontend-deploy.outputs.staging-url }}
+      environment: "production"
+      artifact-name: ${{ needs.build-release.outputs.artifact-name }}
+      infrastructure-outputs-artifact-name: ${{ needs.build-prod.outputs.artifact-name }}
 
-  production-frontend-deploy:
-    needs: [ "build-frontend-release", "run-acceptance-tests", "build-production-infrastructure" ]
-    name: "Deploy Frontend to production"
-    runs-on: "ubuntu-latest"
-    environment: "production"
-    permissions:
-      contents: read
-      actions: read
-    outputs:
-      production-url: ${{ steps.production_deploy.outputs.static_web_app_url }}
-    concurrency:
-      group: "production-swa-deploy"
-      cancel-in-progress: true
-    steps:
-      - name: "Parse Infrastructure Outputs"
-        id: parse_production_outputs
-        env:
-          TOFU_OUTPUTS_B64: ${{ needs.build-production-infrastructure.outputs['tofu-outputs-b64'] }}
-        run: |
-          set -euo pipefail
-          echo "::add-mask::${TOFU_OUTPUTS_B64}"
-          printf '%s' "${TOFU_OUTPUTS_B64}" | base64 -d > tofu_outputs.json || echo '{}' > tofu_outputs.json
-          if ! jq -e . tofu_outputs.json > /dev/null; then
-            echo "tofu-outputs is not valid JSON or is empty."
-            exit 1
-          fi
-          token=$(jq -r '.azure_static_web_app_api_token.value // empty' tofu_outputs.json)
-          if [ -z "$token" ]; then
-            echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
-            echo "Available top-level keys:"
-            jq -r 'paths | select(length==1) | join(".")' tofu_outputs.json || true
-            exit 1
-          fi
-          echo "::add-mask::${token}"
-          echo "token=${token}" >> $GITHUB_OUTPUT
-      - name: "Debug Production Outputs"
-        run: |
-          token="${{ steps.parse_production_outputs.outputs.token }}"
-          echo "::add-mask::${token}"
-          echo "Production SWA Token parsed with length: ${#token}"
-
-      - name: "Download build artifacts"
-        uses: actions/download-artifact@v4
-        with:
-          name: "rundog-frontend"
-          path: ./publish
-
-      - name: "Replace tokens for production environment"
-        shell: bash
-        env:
-          DEPLOY_ENVIRONMENT: "Production"
-        run: |
-          set -euo pipefail
-
-          APPSETTINGS_PATH="./publish/wwwroot/appsettings.json"
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
-
-          # Verify appsettings.json exists and is non-empty
-          if [[ ! -f "$APPSETTINGS_PATH" ]]; then
-            echo "ERROR: appsettings.json not found at $APPSETTINGS_PATH"
-            exit 1
-          fi
-
-          if [[ ! -s "$APPSETTINGS_PATH" ]]; then
-            echo "ERROR: appsettings.json is empty at $APPSETTINGS_PATH"
-            exit 1
-          fi
-
-          echo "Processing appsettings.json at: $APPSETTINGS_PATH"
-
-          # Use jq (JSON processor) to safely update JSON values
-          # --arg creates variables that jq can use safely (handles escaping/quoting)
-          # $env and $ver reference the --arg variables inside the jq expression
-          # The pipe (|) chains the operations: set DeployEnvironment, then set AppVersion
-          jq --arg env "$DEPLOY_ENVIRONMENT" \
-            --arg ver "$SHORT_SHA" \
-            '.DeployEnvironment = $env | .AppVersion = $ver' \
-            "$APPSETTINGS_PATH" > temp.json
-
-          # Atomically replace the original file (avoids corruption if interrupted)
-          mv temp.json "$APPSETTINGS_PATH"
-
-          # Verify the JSON is still valid after our changes
-          if ! jq empty "$APPSETTINGS_PATH" 2>/dev/null; then
-            echo "ERROR: Generated JSON is invalid"
-            exit 1
-          fi
-
-          echo "✅ Successfully updated appsettings.json for $DEPLOY_ENVIRONMENT environment"
-          echo "Final content:"
-          cat "$APPSETTINGS_PATH"
-
-      - name: "Deploy to Azure Static Web App"
-        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9
-        id: production_deploy
-        with:
-          azure_static_web_apps_api_token: ${{ steps.parse_production_outputs.outputs.token }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "publish/wwwroot"
-          output_location: ""
-          skip_app_build: true
-
-  run-healthcheck:
-    needs: "production-frontend-deploy"
-    name: "Run Production Healthcheck"
-    uses: markstanden/coding-standards/.github/workflows/playwright-test-runner.yml@551595f55461e04d117578d969317a6e67ac00f2
+  test-prod:
+    name: "Test Production"
+    needs: deploy-prod
+    uses: ./.github/workflows/frontend-test.yml
     with:
+      environment: "production"
+      base-url: ${{ needs.deploy-prod.outputs.deployment-url }}
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-      test-name: "Production Deployment Healthcheck"
-      test-project-path: "tests/Web.Acceptance.Tests"
-      test-filter: "FullyQualifiedName~Acceptance.Tests&Environment=Production"
-      base-url: ${{ needs.production-frontend-deploy.outputs.production-url }}
 
-  auto-destroy-staging:
-    needs: [ "run-acceptance-tests", "production-frontend-deploy" ]
+  # ============================================
+  # Cleanup
+  # ============================================
+  destroy-staging:
+    name: "Destroy Staging"
     if: >
-      needs.run-acceptance-tests.result == 'success' &&
-      needs.production-frontend-deploy.result == 'success'
-    name: "Auto Destroy Staging Environment"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@551595f55461e04d117578d969317a6e67ac00f2
+      needs.test-staging.result == 'success' &&
+      needs.test-prod.result == 'success'
+    needs: ["test-staging", "test-prod"]
+    uses: ./.github/workflows/infra-destroy.yml
     with:
-      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
-      infrastructure-directory: "./infrastructure"
       environment: "staging"
-      project-name: "rundog"
       backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
       backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
     secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}

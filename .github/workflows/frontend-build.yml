@@ -1,0 +1,53 @@
+name: "Frontend Build Release"
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        description: ".NET SDK version"
+        type: string
+        required: false
+        default: "8.0.x"
+
+      node-version:
+        description: "Node.js version"
+        type: string
+        required: false
+        default: "22"
+
+      artifact-prefix:
+        description: "Prefix for generated artifact name"
+        type: string
+        required: false
+        default: "frontend-release"
+
+      retention-days:
+        description: "Artifact retention days"
+        type: number
+        required: false
+        default: 7
+
+      web-project-path:
+        description: "Path to the web project directory"
+        type: string
+        required: false
+        default: "src/Web"
+
+    outputs:
+      artifact-name:
+        description: "Name of the frontend build artifact"
+        value: "${{ inputs.artifact-prefix }}-${{ github.run_id }}-${{ github.run_attempt }}"
+
+jobs:
+  build-release:
+    name: "Build Frontend Release"
+    permissions:
+      contents: read
+      actions: write
+    uses: markstanden/coding-standards/.github/workflows/dotnet-build--blazor-frontend.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
+    with:
+      dotnet-version: ${{ inputs.dotnet-version }}
+      node-version: ${{ inputs.node-version }}
+      web-project-path: ${{ inputs.web-project-path }}
+      artifact-name: ${{ inputs.artifact-prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
+      retention-days: ${{ inputs.retention-days }}

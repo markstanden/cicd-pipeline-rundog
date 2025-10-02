@@ -1,0 +1,19 @@
+name: "Pull Request Checks"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  codebase-tests:
+    uses: ./.github/workflows/repo-test.yml
+    with:
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
+      sonar-org: ${{ vars.SONAR_ORGANIZATION }}
+      sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
+    secrets:
+      sonar-token: ${{ secrets.SONAR_TOKEN }}

@@ -1,0 +1,78 @@
+name: "Codebase Testing"
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        description: ".NET SDK version"
+        type: string
+        required: false
+        default: "8.0.x"
+
+      unit-test-filter:
+        description: "Test filter to uniquely isolate unit tests"
+        type: string
+        required: false
+        default: "FullyQualifiedName~Unit.Tests"
+
+      integration-test-filter:
+        description: "Test filter to uniquely isolate integration tests"
+        type: string
+        required: false
+        default: "FullyQualifiedName~Integration.Tests"
+
+      sonar-org:
+        description: "SonarCloud Organisation"
+        type: string
+        required: true
+
+      sonar-project-key:
+        description: "Project key within the SonarCloud Organisation"
+        type: string
+        required: true
+
+    secrets:
+      sonar-token:
+        description: "SonarQube api token"
+        required: true
+
+jobs:
+  dotnet-format:
+    name: "Code Formatting Compliance"
+    uses: markstanden/coding-standards/.github/workflows/dotnet-format--solution.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
+    with:
+      dotnet-version: ${{ inputs.dotnet-version }}
+
+  dotnet-build:
+    name: "Build Solution"
+    needs: "dotnet-format"
+    uses: markstanden/coding-standards/.github/workflows/dotnet-build--solution.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
+    with:
+      dotnet-version: ${{ inputs.dotnet-version }}
+
+  unit-tests:
+    name: "Run Unit Tests"
+    needs: "dotnet-build"
+    uses: markstanden/coding-standards/.github/workflows/dotnet-test--unit-tests.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
+    with:
+      dotnet-version: ${{ inputs.dotnet-version }}
+      test-filter: ${{ inputs.unit-test-filter }}
+
+  integration-tests:
+    name: "Run Integration Tests"
+    needs: "dotnet-build"
+    uses: markstanden/coding-standards/.github/workflows/dotnet-test--integration-tests.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
+    with:
+      dotnet-version: ${{ inputs.dotnet-version }}
+      test-filter: ${{ inputs.integration-test-filter }}
+
+  run-sonarqube-deep-analysis:
+    name: "SonarQube Analysis"
+    needs: [ "unit-tests", "integration-tests" ]
+    uses: markstanden/coding-standards/.github/workflows/dotnet-sonarqube.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
+    with:
+      dotnet-version: ${{ inputs.dotnet-version }}
+      sonar-project-key: ${{ inputs.sonar-project-key }}
+      sonar-org: ${{ inputs.sonar-org }}
+    secrets:
+      SONAR_TOKEN: ${{ secrets.sonar-token }}

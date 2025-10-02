@@ -1,10 +1,3 @@
-using Microsoft.Playwright;
-using Microsoft.Playwright.Xunit;
-using Rundog.Acceptance.Tests.EnvironmentVariables;
-using Rundog.Acceptance.Tests.Extensions;
-using Rundog.Core.Constants;
-using Shouldly;
-
 namespace Rundog.Acceptance.Tests.Pages.Home;
 
 /// <summary>
@@ -35,6 +28,20 @@ public class HomeHealthChecks : PageTest
     {
         // Arrange
         const string testId = TestIds.Header.Section;
+
+        // Act
+        await Page.LoadAsync(_pageUrl);
+        ILocator section = Page.GetByTestId(testId);
+
+        // Assert
+        await Expect(section).ToBeVisibleAsync();
+    }
+
+    [Fact]
+    public async Task Homepage_Displays_MainSection()
+    {
+        // Arrange
+        const string testId = TestIds.Main.Section;
 
         // Act
         await Page.LoadAsync(_pageUrl);
