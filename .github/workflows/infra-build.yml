@@ -62,7 +62,7 @@ on:
     outputs:
       artifact-name:
         description: "Name of the generated infrastructure outputs artifact"
-        value: "${{ inputs.artifact-prefix }}-${{ inputs.project-name }}-${{ inputs.environment }}-${{ github.run_id }}"
+        value: "${{ inputs.artifact-prefix }}-${{ inputs.project-name }}-${{ inputs.environment }}-${{ github.run_id }}-${{ github.run_attempt }}"
 
 jobs:
   build-infrastructure:
@@ -71,7 +71,7 @@ jobs:
     with:
       opentofu-version: ${{ inputs.opentofu-version }}
       infrastructure-directory: ${{ inputs.infrastructure-directory }}
-      output-artifact-name: "${{ inputs.artifact-prefix }}-${{ inputs.project-name }}-${{ inputs.environment }}-${{ github.run_id }}"
+      output-artifact-name: ${{ inputs.artifact-prefix }}-${{ inputs.project-name }}-${{ inputs.environment }}-${{ github.run_id }}-${{ github.run_attempt }}
       environment: ${{ inputs.environment }}
       project-name: ${{ inputs.project-name }}
       backend-resource-group-name: ${{ inputs.backend-resource-group-name }}

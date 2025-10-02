@@ -36,7 +36,7 @@ on:
     outputs:
       artifact-name:
         description: "Name of the frontend build artifact"
-        value: "${{ inputs.artifact-prefix }}-${{ github.run_id }}"
+        value: "${{ inputs.artifact-prefix }}-${{ github.run_id }}-${{ github.run_attempt }}"
 
 jobs:
   build-release:
@@ -49,5 +49,5 @@ jobs:
       dotnet-version: ${{ inputs.dotnet-version }}
       node-version: ${{ inputs.node-version }}
       web-project-path: ${{ inputs.web-project-path }}
-      artifact-name: ${{ inputs.artifact-prefix }}-${{ github.run_id }}
+      artifact-name: ${{ inputs.artifact-prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
       retention-days: ${{ inputs.retention-days }}
