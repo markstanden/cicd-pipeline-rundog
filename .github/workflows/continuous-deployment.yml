@@ -42,6 +42,9 @@ jobs:
   build-staging:
     name: "Build Staging Infra"
     needs: "test-repo"
+    permissions:
+      contents: read
+      actions: write
     uses: ./.github/workflows/infra-build.yml
     with:
       environment: "staging"
@@ -78,6 +81,9 @@ jobs:
   build-prod:
     name: "Build Production Infra"
     needs: test-staging
+    permissions:
+      contents: read
+      actions: write
     uses: ./.github/workflows/infra-build.yml
     with:
       environment: "production"
