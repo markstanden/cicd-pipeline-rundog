@@ -47,7 +47,7 @@ jobs:
       environment: "staging"
       backend-resource-group-name: ${{ vars.BACKEND_RG_STAGING }}
       backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_STAGING }}
-      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == "true" }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' }}
     secrets:
       azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -83,7 +83,7 @@ jobs:
       environment: "production"
       backend-resource-group-name: ${{ vars.BACKEND_RG_PROD }}
       backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_PROD }}
-      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == "true" }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' }}
     secrets:
       azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
 
