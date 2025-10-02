@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   codebase-tests:
-    uses: ./.github/workflows/codebase-testing.yml
+    uses: ./.github/workflows/repo-test.yml
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       sonar-org: ${{ vars.SONAR_ORGANIZATION }}
