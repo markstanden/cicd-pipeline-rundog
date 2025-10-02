@@ -1,4 +1,4 @@
-name: "Code Quality Checks"
+name: "Pull Request Checks"
 
 on:
   workflow_dispatch:
@@ -9,34 +9,11 @@ permissions:
   contents: read
 
 jobs:
-  check-formatting:
-    name: "Code Formatting Compliance Check"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-format--solution.yml@main
+  codebase-tests:
+    uses: ./.github/workflows/codebase-testing.yml
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
-
-  build-succeeds:
-    needs: "check-formatting"
-    name: "Build Solution"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-build--solution.yml@main
-    with:
-      dotnet-version: ${{ vars.DOTNET_VERSION }}
-
-  run-unit-tests:
-    needs: "build-succeeds"
-    name: "Run Unit Tests"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-test--unit-tests.yml@main
-    with:
-      dotnet-version: ${{ vars.DOTNET_VERSION }}
-      test-filter: "FullyQualifiedName~Unit.Tests"
-
-  run-sonarqube-deep-analysis:
-    needs: "run-unit-tests"
-    name: "SonarQube Analysis"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-sonarqube.yml@main
-    with:
-      dotnet-version: ${{ vars.DOTNET_VERSION }}
+      sonar-org: ${{ vars.SONAR_ORGANIZATION }}
       sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
-      sonar-organization: ${{ vars.SONAR_ORGANIZATION }}
     secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      sonar-token: ${{ secrets.SONAR_TOKEN }}
