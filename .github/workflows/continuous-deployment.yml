@@ -10,10 +10,22 @@ permissions:
 
 jobs:
   # ============================================
+  # Code Quality
+  # ============================================
+  test-repo:
+    name: "Test Repo"
+    uses: ./.github/workflows/repo-test.yml
+    with:
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
+      sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
+      sonar-org: ${{ vars.SONAR_ORGANIZATION }}
+
+  # ============================================
   # Build Artifacts
   # ============================================
   build-release:
     name: "Build Release"
+    needs: "test-repo"
     permissions:
       contents: read
       actions: write
@@ -27,6 +39,7 @@ jobs:
   # ============================================
   build-staging:
     name: "Build Staging Infra"
+    needs: "test-repo"
     uses: ./.github/workflows/infra-build.yml
     with:
       environment: "staging"
