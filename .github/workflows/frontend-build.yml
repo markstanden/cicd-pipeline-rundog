@@ -15,11 +15,11 @@ on:
         required: false
         default: "22"
 
-      artifact-name:
-        description: "Name for the build artifact"
+      artifact-prefix:
+        description: "Prefix for generated artifact name"
         type: string
         required: false
-        default: "frontend-build-artifact"
+        default: "frontend-release"
 
       retention-days:
         description: "Artifact retention days"
@@ -47,8 +47,8 @@ on:
 
     outputs:
       artifact-name:
-        description: "Name of the built artifact"
-        value: ${{ jobs.build-release.outputs.artifact-name }}
+        description: "Name of the frontend build artifact"
+        value: "${{ inputs.artifact-prefix }}-${{ github.run_id }}"
 
 jobs:
   dotnet-build:
@@ -84,5 +84,5 @@ jobs:
       dotnet-version: ${{ inputs.dotnet-version }}
       node-version: ${{ inputs.node-version }}
       web-project-path: ${{ inputs.web-project-path }}
-      artifact-name: ${{ inputs.artifact-name }}
+      artifact-name: ${{ inputs.artifact-prefix }}-${{ github.run_id }}
       retention-days: ${{ inputs.retention-days }}
