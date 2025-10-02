@@ -50,29 +50,30 @@ jobs:
 
   dotnet-build:
     name: "Build Solution"
+    needs: "dotnet-format"
     uses: markstanden/coding-standards/.github/workflows/dotnet-build--solution.yml@main
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
 
-  run-unit-tests:
+  unit-tests:
     name: "Run Unit Tests"
-    needs: ["dotnet-build"]
+    needs: "dotnet-build"
     uses: markstanden/coding-standards/.github/workflows/dotnet-test--unit-tests.yml@main
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
       test-filter: ${{ inputs.unit-test-filter }}
 
-  run-integration-tests:
+  integration-tests:
     name: "Run Integration Tests"
-    needs: ["dotnet-build"]
+    needs: "dotnet-build"
     uses: markstanden/coding-standards/.github/workflows/dotnet-test--integration-tests.yml@main
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
       test-filter: ${{ inputs.integration-test-filter }}
 
   run-sonarqube-deep-analysis:
-    needs: "run-unit-tests"
     name: "SonarQube Analysis"
+    needs: [ "unit-tests", "integration-tests" ]
     uses: markstanden/coding-standards/.github/workflows/dotnet-sonarqube.yml@main
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
