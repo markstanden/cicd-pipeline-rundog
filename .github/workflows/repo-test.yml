@@ -36,11 +36,6 @@ on:
         description: "SonarQube api token"
         required: true
 
-    outputs:
-      artifact-name:
-        description: "Name of the frontend build artifact"
-        value: "${{ inputs.artifact-prefix }}-${{ github.run_id }}"
-
 jobs:
   dotnet-format:
     name: "Code Formatting Compliance"
