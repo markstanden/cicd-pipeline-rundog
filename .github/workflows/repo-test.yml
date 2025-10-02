@@ -39,21 +39,21 @@ on:
 jobs:
   dotnet-format:
     name: "Code Formatting Compliance"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-format--solution.yml@2b4aa57b65fe2e32e7960aef2d6ec4f87be694dc
+    uses: markstanden/coding-standards/.github/workflows/dotnet-format--solution.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
 
   dotnet-build:
     name: "Build Solution"
     needs: "dotnet-format"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-build--solution.yml@2b4aa57b65fe2e32e7960aef2d6ec4f87be694dc
+    uses: markstanden/coding-standards/.github/workflows/dotnet-build--solution.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
 
   unit-tests:
     name: "Run Unit Tests"
     needs: "dotnet-build"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-test--unit-tests.yml@2b4aa57b65fe2e32e7960aef2d6ec4f87be694dc
+    uses: markstanden/coding-standards/.github/workflows/dotnet-test--unit-tests.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
       test-filter: ${{ inputs.unit-test-filter }}
@@ -61,7 +61,7 @@ jobs:
   integration-tests:
     name: "Run Integration Tests"
     needs: "dotnet-build"
-    uses: markstanden/coding-standards/.github/workflows/dotnet-test--integration-tests.yml@2b4aa57b65fe2e32e7960aef2d6ec4f87be694dc
+    uses: markstanden/coding-standards/.github/workflows/dotnet-test--integration-tests.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
       test-filter: ${{ inputs.integration-test-filter }}
@@ -69,7 +69,7 @@ jobs:
   run-sonarqube-deep-analysis:
     name: "SonarQube Analysis"
     needs: [ "unit-tests", "integration-tests" ]
-    uses: markstanden/coding-standards/.github/workflows/dotnet-sonarqube.yml@2b4aa57b65fe2e32e7960aef2d6ec4f87be694dc
+    uses: markstanden/coding-standards/.github/workflows/dotnet-sonarqube.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
       sonar-project-key: ${{ inputs.sonar-project-key }}

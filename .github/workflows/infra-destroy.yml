@@ -55,7 +55,7 @@ on:
 jobs:
   destroy-infrastructure:
     name: "Destroy Infrastructure (${{ inputs.environment }})"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@2b4aa57b65fe2e32e7960aef2d6ec4f87be694dc
+    uses: markstanden/coding-standards/.github/workflows/opentofu-destroy-workspace.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
     with:
       opentofu-version: ${{ inputs.opentofu-version }}
       infrastructure-directory: ${{ inputs.infrastructure-directory }}

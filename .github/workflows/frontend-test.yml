@@ -35,7 +35,7 @@ on:
 jobs:
   run-healthcheck:
     name: "Healthcheck (${{inputs.environment}})"
-    uses: markstanden/coding-standards/.github/workflows/healthcheck--curl-endpoints.yml@2b4aa57b65fe2e32e7960aef2d6ec4f87be694dc
+    uses: markstanden/coding-standards/.github/workflows/healthcheck--curl-endpoints.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
     with:
       base-url: ${{ inputs.base-url }}
       routes: ${{ inputs.routes }}
@@ -43,7 +43,7 @@ jobs:
   run-acceptance-tests:
     name: "Playwright Acceptance Tests (${{inputs.environment}})"
     needs: [ "run-healthcheck" ]
-    uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@2b4aa57b65fe2e32e7960aef2d6ec4f87be694dc
+    uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
       test-project-path: ${{ inputs.test-project-path }}
