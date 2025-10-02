@@ -6,35 +6,42 @@ on:
         description: "e.g. staging or production"
         type: string
         required: true
+
       artifact-name:
         description: "Frontend artifact name"
         type: string
         required: false
         default: "frontend-build-artifact"
+
       infrastructure-outputs-artifact-name:
         description: "Name of the artifact containing tofu outputs json file"
         type: string
         required: true
+
       output-json-filename:
         description: "Filename for the OpenTofu outputs JSON file"
         type: string
         required: false
         default: "tofu_outputs.json"
+
       app-location:
         description: "App location for SWA deployment"
         type: string
         required: false
         default: "publish/wwwroot"
+
       output-location:
         description: "Output location for SWA deployment"
         type: string
         required: false
         default: ""
+
       swa-action:
         description: "Static Web App action"
         type: string
         required: false
         default: "upload"
+
     outputs:
       deployment-url:
         description: "Deployed application URL"
