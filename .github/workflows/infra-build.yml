@@ -67,7 +67,7 @@ on:
 jobs:
   build-infrastructure:
     name: "Build Infrastructure (${{ inputs.environment }})"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@main
+    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@2b4aa57b65fe2e32e7960aef2d6ec4f87be694dc
     with:
       opentofu-version: ${{ inputs.opentofu-version }}
       infrastructure-directory: ${{ inputs.infrastructure-directory }}

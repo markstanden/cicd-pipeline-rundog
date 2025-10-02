@@ -44,7 +44,7 @@ jobs:
     permissions:
       contents: read
       actions: write
-    uses: markstanden/coding-standards/.github/workflows/dotnet-build--blazor-frontend.yml@main
+    uses: markstanden/coding-standards/.github/workflows/dotnet-build--blazor-frontend.yml@2b4aa57b65fe2e32e7960aef2d6ec4f87be694dc
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
       node-version: ${{ inputs.node-version }}
