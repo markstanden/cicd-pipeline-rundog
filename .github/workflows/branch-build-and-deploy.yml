@@ -1,4 +1,4 @@
-name: "Development Deploy"
+name: "Branch Build and Deploy"
 
 on:
   workflow_dispatch:
@@ -17,14 +17,14 @@ on:
 
 jobs:
   build-frontend:
-    name: "Build Frontend"
+    name: "Build Frontend (${{ github.ref_name }})"
     uses: ./.github/workflows/frontend-build.yml
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       node-version: ${{ vars.NODE_VERSION }}
 
   build-infrastructure:
-    name: "Build Dev Infrastructure"
+    name: "Build Infrastructure (${{ inputs.environment }})"
     uses: ./.github/workflows/infra-build.yml
     with:
       environment: ${{ inputs.environment }}
@@ -34,8 +34,8 @@ jobs:
     secrets:
       azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
 
-  deploy-dev:
-    name: "Deploy to Development"
+  deploy:
+    name: "Deploy ${{ github.ref_name }} to ${{ inputs.environment }}"
     needs: [ "build-frontend", "build-infrastructure" ]
     uses: ./.github/workflows/frontend-deploy.yml
     with:
