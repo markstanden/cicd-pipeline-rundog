@@ -65,6 +65,7 @@ jobs:
       environment: "staging"
       frontend-artifact-name: ${{ needs.build-release.outputs.artifact-name }}
       infrastructure-outputs-artifact-name: ${{ needs.build-staging.outputs.artifact-name }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' }}
 
   test-staging:
     name: "Test Staging"
@@ -104,6 +105,7 @@ jobs:
       environment: "production"
       frontend-artifact-name: ${{ needs.build-release.outputs.artifact-name }}
       infrastructure-outputs-artifact-name: ${{ needs.build-prod.outputs.artifact-name }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' }}
 
   test-prod:
     name: "Test Production"
