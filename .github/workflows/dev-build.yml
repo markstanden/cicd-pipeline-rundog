@@ -1,20 +1,45 @@
-name: "Manual Build Development Infrastructure"
+name: "Development Deploy"
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "The environment name, used within resources"
+        type: string
+        required: false
+        default: "dev"
+
+      debug-output:
+        description: "Enable verbose debug output to aid troubleshooting"
+        type: boolean
+        required: false
+        default: false
 
 jobs:
-  build-development-infrastructure:
-    name: "Build Development Environment Infrastructure"
-    uses: markstanden/coding-standards/.github/workflows/opentofu-build-infrastructure.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
+  build-frontend:
+    name: "Build Frontend"
+    uses: ./.github/workflows/frontend-build.yml
     with:
-      opentofu-version: ${{ vars.OPENTOFU_VERSION }}
-      infrastructure-directory: "./infrastructure"
-      environment: "development"
-      project-name: "rundog"
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
+      node-version: ${{ vars.NODE_VERSION }}
+
+  build-infrastructure:
+    name: "Build Dev Infrastructure"
+    uses: ./.github/workflows/infra-build.yml
+    with:
+      environment: ${{ inputs.environment }}
       backend-resource-group-name: ${{ vars.BACKEND_RG_DEV }}
       backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_DEV }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || inputs.debug-output }}
     secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
 
-
+  deploy-dev:
+    name: "Deploy to Development"
+    needs: [ "build-frontend", "build-infrastructure" ]
+    uses: ./.github/workflows/frontend-deploy.yml
+    with:
+      environment: ${{ inputs.environment }}
+      artifact-name: ${{ needs.build-frontend.outputs.artifact-name }}
+      infrastructure-outputs-artifact-name: ${{ needs.build-infrastructure.outputs.artifact-name }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || inputs.debug-output }}
