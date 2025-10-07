@@ -7,7 +7,7 @@ on:
         description: "The environment name, used within resources"
         type: string
         required: false
-        default: "dev"
+        default: "development"
 
       debug-output:
         description: "Enable verbose debug output to aid troubleshooting"
