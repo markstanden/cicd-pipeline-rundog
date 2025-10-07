@@ -34,7 +34,7 @@ jobs:
     uses: markstanden/coding-standards/.github/workflows/azure-swa--deploy-blazor-wasm.yml@main
     with:
       environment: ${{ inputs.environment }}
-      frontend-artifact-name: ${{ inputs.artifact-name }}
+      frontend-artifact-name: ${{ inputs.frontend-artifact-name }}
       infrastructure-outputs-artifact-name: ${{ inputs.infrastructure-outputs-artifact-name }}
       concurrency-group: "rundog-${{ inputs.environment }}"
       debug-output: ${{ inputs.debug-output }}
