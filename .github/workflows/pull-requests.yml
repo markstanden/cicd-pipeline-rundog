@@ -23,6 +23,6 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       sonar-org: ${{ vars.SONAR_ORGANIZATION }}
       sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
-      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || inputs.debug-output || false }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || (github.event_name == 'workflow_dispatch' && fromJSON(github.event.inputs.debug-output || 'false')) }}
     secrets:
       sonar-token: ${{ secrets.SONAR_TOKEN }}
