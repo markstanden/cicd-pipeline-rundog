@@ -31,6 +31,12 @@ on:
         type: string
         required: true
 
+      debug-output:
+        description: "Enable verbose debug output to aid troubleshooting"
+        type: boolean
+        required: false
+        default: false
+
     secrets:
       sonar-token:
         description: "SonarQube api token"

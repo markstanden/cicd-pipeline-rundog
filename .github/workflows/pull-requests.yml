@@ -2,6 +2,14 @@ name: "Pull Request Checks"
 
 on:
   workflow_dispatch:
+
+    inputs:
+      debug-output:
+        description: "Enable verbose debug output to aid troubleshooting"
+        type: boolean
+        required: false
+        default: false
+
   pull_request:
     branches: [ "main" ]
 
@@ -15,5 +23,6 @@ jobs:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       sonar-org: ${{ vars.SONAR_ORGANIZATION }}
       sonar-project-key: ${{ vars.SONAR_PROJECT_KEY }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || inputs.debug-output || false }}
     secrets:
       sonar-token: ${{ secrets.SONAR_TOKEN }}
