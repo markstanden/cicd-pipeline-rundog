@@ -31,7 +31,7 @@ on:
 jobs:
   deploy:
     name: "Deploy Frontend to ${{ inputs.environment }}"
-    uses: markstanden/coding-standards/.github/workflows/azure-swa--deploy-blazor-wasm.yml@main
+    uses: markstanden/coding-standards/.github/workflows/azure-swa--deploy-blazor-wasm.yml@3f39ebc399f4bbff90f56493a70e04a5dad42a3a
     with:
       environment: ${{ inputs.environment }}
       frontend-artifact-name: ${{ inputs.frontend-artifact-name }}
