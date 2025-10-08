@@ -8,44 +8,57 @@ on:
         type: string
         required: false
         default: "8.0.x"
+
       environment:
         description: "e.g. staging or production"
         type: string
         required: true
+
       base-url:
         description: "Base url to test"
         type: string
         required: true
+
       routes:
         description: "Routes to test, relative to the base-url"
         type: string
         required: false
         default: '["", "/_framework/blazor.webassembly.js", "/css/site.css"]'
+
       test-project-path:
         description: "Path to the acceptance test project from the project root"
         type: string
         required: false
         default: "tests/Web.Acceptance.Tests"
+
       test-filter:
         description: "Filters to apply to tests within test project path"
         type: string
         required: false
         default: "FullyQualifiedName~Acceptance.Tests"
 
+      debug-output:
+        description: "Enable verbose debug output to aid troubleshooting"
+        type: boolean
+        required: false
+        default: false
+
 jobs:
   run-healthcheck:
     name: "Healthcheck (${{inputs.environment}})"
-    uses: markstanden/coding-standards/.github/workflows/healthcheck--curl-endpoints.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
+    uses: markstanden/coding-standards/.github/workflows/healthcheck--curl-endpoints.yml@3f39ebc399f4bbff90f56493a70e04a5dad42a3a
     with:
       base-url: ${{ inputs.base-url }}
       routes: ${{ inputs.routes }}
+      debug-output: ${{ inputs.debug-output }}
 
   run-acceptance-tests:
     name: "Playwright Acceptance Tests (${{inputs.environment}})"
     needs: [ "run-healthcheck" ]
-    uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@1f9f3f42031235f1789115afe7c9646bd3f3215b
+    uses: markstanden/coding-standards/.github/workflows/dotnet-test--playwright-tests.yml@3f39ebc399f4bbff90f56493a70e04a5dad42a3a
     with:
       dotnet-version: ${{ inputs.dotnet-version }}
       test-project-path: ${{ inputs.test-project-path }}
       test-filter: ${{ inputs.test-filter }}
       base-url: ${{ inputs.base-url }}
+      debug-output: ${{ inputs.debug-output }}
