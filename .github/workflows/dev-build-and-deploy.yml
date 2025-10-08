@@ -3,21 +3,12 @@ name: "Development Build and Deploy"
 on:
   workflow_dispatch:
     inputs:
-      environment-suffix:
-        description: "The environment name suffix, used within resources. A suffix of 1 would produce development1 within resource names"
-        type: string
-        required: false
-        default: ""
 
       debug-output:
         description: "Enable verbose debug output to aid troubleshooting"
         type: boolean
         required: false
         default: false
-
-env:
-  BASE_ENVIRONMENT: "development"
-  ENVIRONMENT: ${{ env.BASE_ENVIRONMENT }}${{ inputs.environment-suffix }}
 
 jobs:
   build-frontend:
@@ -26,12 +17,13 @@ jobs:
     with:
       dotnet-version: ${{ vars.DOTNET_VERSION }}
       node-version: ${{ vars.NODE_VERSION }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || inputs.debug-output }}
 
   build-infrastructure:
-    name: "Build Infrastructure (${{ inputs.environment }})"
+    name: "Build Infrastructure (development)"
     uses: ./.github/workflows/infra-build.yml
     with:
-      environment: ${{ env.ENVIRONMENT }}
+      environment: "development"
       backend-resource-group-name: ${{ vars.BACKEND_RG_DEV }}
       backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_DEV }}
       debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || inputs.debug-output }}
@@ -39,11 +31,11 @@ jobs:
       azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
 
   deploy:
-    name: "Deploy ${{ github.ref_name }} to ${{ inputs.environment }}"
+    name: "Deploy ${{ github.ref_name }} to development"
     needs: [ "build-frontend", "build-infrastructure" ]
     uses: ./.github/workflows/frontend-deploy.yml
     with:
-      environment: ${{ env.ENVIRONMENT }}
+      environment: "development"
       frontend-artifact-name: ${{ needs.build-frontend.outputs.artifact-name }}
       infrastructure-outputs-artifact-name: ${{ needs.build-infrastructure.outputs.artifact-name }}
       debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || inputs.debug-output }}
