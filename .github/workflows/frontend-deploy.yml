@@ -7,157 +7,34 @@ on:
         type: string
         required: true
 
-      artifact-name:
+      frontend-artifact-name:
         description: "Frontend artifact name"
         type: string
-        required: false
-        default: "frontend-build-artifact"
+        required: true
 
       infrastructure-outputs-artifact-name:
         description: "Name of the artifact containing tofu outputs json file"
         type: string
         required: true
 
-      output-json-filename:
-        description: "Filename for the OpenTofu outputs JSON file"
-        type: string
+      debug-output:
+        description: "Enable verbose debug output to aid troubleshooting"
+        type: boolean
         required: false
-        default: "tofu_outputs.json"
-
-      app-location:
-        description: "App location for SWA deployment"
-        type: string
-        required: false
-        default: "publish/wwwroot"
-
-      output-location:
-        description: "Output location for SWA deployment"
-        type: string
-        required: false
-        default: ""
-
-      swa-action:
-        description: "Static Web App action"
-        type: string
-        required: false
-        default: "upload"
+        default: false
 
     outputs:
       deployment-url:
         description: "Deployed application URL"
-        value: ${{ jobs.deploy.outputs.url }}
-
-env:
-  APPSETTINGS_PATH: "./publish/wwwroot/appsettings.json"
-  SWA_ACTION_VERSION: "1a947af9992250f3bc2e68ad0754c0b0c11566c9"
+        value: ${{ jobs.deploy.outputs.deployment-url }}
 
 jobs:
   deploy:
     name: "Deploy Frontend to ${{ inputs.environment }}"
-    runs-on: "ubuntu-latest"
-    environment: ${{ inputs.environment }}
-    permissions:
-      contents: read
-      actions: read
-    outputs:
-      url: ${{ steps.deploy.outputs.static_web_app_url }}
-    concurrency:
-      group: "${{ inputs.environment }}-swa-deploy"
-      cancel-in-progress: true
-    steps:
-      - name: "Download Infrastructure Outputs"
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ inputs.infrastructure-outputs-artifact-name }}
-
-      - name: "Parse Infrastructure Outputs"
-        id: parse_outputs
-        env:
-          OUTPUT_FILENAME: ${{ inputs.output-json-filename }}
-        run: |
-          set -euo pipefail
-
-          # Verify JSON file exists and is valid
-          if ! jq -e . $OUTPUT_FILENAME > /dev/null; then
-            echo "tofu-outputs is not valid JSON or is empty."
-            exit 1
-          fi
-
-          token=$(jq -r '.azure_static_web_app_api_token.value // empty' $OUTPUT_FILENAME)
-
-          if [ -z "$token" ]; then
-            echo "azure_static_web_app_api_token.value not found in tofu-outputs JSON"
-            echo "Available top-level keys:"
-            jq -r 'paths | select(length==1) | join(".")' $OUTPUT_FILENAME || true
-            exit 1
-          fi
-
-          echo "::add-mask::${token}"
-          echo "token=${token}" >> $GITHUB_OUTPUT
-
-      - name: "Debug ${{ inputs.environment }} Token"
-        env:
-          BUILD_ENV: ${{ inputs.environment }}
-        run: |
-          token="${{ steps.parse_outputs.outputs.token }}"
-          echo "::add-mask::${token}"
-          echo "$BUILD_ENV SWA Token parsed with length: ${#token}"
-
-      - name: "Download build artifacts"
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ inputs.artifact-name }}
-          path: ./publish
-
-      - name: "Replace tokens for ${{ inputs.environment }} environment"
-        shell: bash
-        env:
-          DEPLOY_ENVIRONMENT: ${{ inputs.environment == 'staging' && 'Staging' || 'Production' }}
-        run: |
-          set -euo pipefail
-
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
-
-          # Verify appsettings.json exists and is non-empty
-          if [[ ! -f "${{ env.APPSETTINGS_PATH }}" ]]; then
-            echo "ERROR: appsettings.json not found at ${{ env.APPSETTINGS_PATH }}"
-            exit 1
-          fi
-
-          if [[ ! -s "${{ env.APPSETTINGS_PATH }}" ]]; then
-            echo "ERROR: appsettings.json is empty at ${{ env.APPSETTINGS_PATH }}"
-            exit 1
-          fi
-
-          echo "Processing appsettings.json at: ${{ env.APPSETTINGS_PATH }}"
-
-          # Use jq (JSON processor) to safely update JSON values
-          # --arg creates variables that jq can use safely (handles escaping/quoting)
-          # $env and $ver reference the --arg variables inside the jq expression
-          # The pipe (|) chains the operations: set DeployEnvironment, then set AppVersion
-          jq --arg env "$DEPLOY_ENVIRONMENT" \
-            --arg ver "$SHORT_SHA" \
-            '.DeployEnvironment = $env | .AppVersion = $ver' \
-            "${{ env.APPSETTINGS_PATH }}" > temp.json
-
-          # Atomically replace the original file (avoids corruption if interrupted)
-          mv temp.json "${{ env.APPSETTINGS_PATH }}"
-
-          # Verify the JSON is still valid after our changes
-          if ! jq empty "${{ env.APPSETTINGS_PATH }}" 2>/dev/null; then
-            echo "ERROR: Generated JSON is invalid"
-            exit 1
-          fi
-
-          echo "✅ Successfully updated appsettings.json for $DEPLOY_ENVIRONMENT environment"
-
-      - name: "Deploy to Azure Static Web App"
-        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9
-        id: deploy
-        with:
-          azure_static_web_apps_api_token: ${{ steps.parse_outputs.outputs.token }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: ${{ inputs.swa-action }}
-          app_location: ${{ inputs.app-location }}
-          output_location: ${{ inputs.output-location }}
-          skip_app_build: true
+    uses: markstanden/coding-standards/.github/workflows/azure-swa--deploy-blazor-wasm.yml@main
+    with:
+      environment: ${{ inputs.environment }}
+      frontend-artifact-name: ${{ inputs.frontend-artifact-name }}
+      infrastructure-outputs-artifact-name: ${{ inputs.infrastructure-outputs-artifact-name }}
+      concurrency-group: "rundog-${{ inputs.environment }}"
+      debug-output: ${{ inputs.debug-output }}

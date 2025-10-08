@@ -1,0 +1,41 @@
+name: "Development Build and Deploy"
+
+on:
+  workflow_dispatch:
+    inputs:
+
+      debug-output:
+        description: "Enable verbose debug output to aid troubleshooting"
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  build-frontend:
+    name: "Build Frontend (${{ github.ref_name }})"
+    uses: ./.github/workflows/frontend-build.yml
+    with:
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
+      node-version: ${{ vars.NODE_VERSION }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || inputs.debug-output }}
+
+  build-infrastructure:
+    name: "Build Infrastructure (development)"
+    uses: ./.github/workflows/infra-build.yml
+    with:
+      environment: "development"
+      backend-resource-group-name: ${{ vars.BACKEND_RG_DEV }}
+      backend-storage-account-name: ${{ vars.BACKEND_STORAGE_ACCOUNT_DEV }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || inputs.debug-output }}
+    secrets:
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
+
+  deploy:
+    name: "Deploy ${{ github.ref_name }} to development"
+    needs: [ "build-frontend", "build-infrastructure" ]
+    uses: ./.github/workflows/frontend-deploy.yml
+    with:
+      environment: "development"
+      frontend-artifact-name: ${{ needs.build-frontend.outputs.artifact-name }}
+      infrastructure-outputs-artifact-name: ${{ needs.build-infrastructure.outputs.artifact-name }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || inputs.debug-output }}
