@@ -43,3 +43,13 @@ jobs:
       frontend-artifact-name: ${{ needs.build-frontend.outputs.artifact-name }}
       infrastructure-outputs-artifact-name: ${{ needs.build-infrastructure.outputs.artifact-name }}
       debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || inputs.debug-output }}
+
+  test:
+    name: "Acceptance test ${{ github.ref_name }}"
+    needs: deploy
+    uses: ./.github/workflows/frontend-test.yml
+    with:
+      environment: "development"
+      base-url: ${{ needs.deploy.outputs.deployment-url }}
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
+      debug-output: ${{ vars.PIPELINE_DEBUG_MODE == 'true' || inputs.debug-output }}
