@@ -10,6 +10,10 @@ on:
         required: false
         default: false
 
+permissions:
+  actions: write
+  contents: read
+
 jobs:
   build-frontend:
     name: "Build Frontend (${{ github.ref_name }})"
