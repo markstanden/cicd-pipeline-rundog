@@ -28,6 +28,11 @@ public static class TestIds
         public const string Section = "header-section";
 
         /// <summary>
+        /// The identifier for the logo section within the header
+        /// </summary>
+        public const string LogoSection = "header-logo-section";
+
+        /// <summary>
         /// The identifier for the links section within the header
         /// </summary>
         public const string LinksSection = "header-links-section";

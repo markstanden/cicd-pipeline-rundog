@@ -9,12 +9,11 @@ public class HeaderHealthChecks : PageTest
 {
     private readonly string _pageUrl = BaseUrl.Value;
 
-    [Fact]
-    public async Task Header_Displays_LinksSection()
+    [Theory]
+    [InlineData(TestIds.Header.LogoSection)]
+    [InlineData(TestIds.Header.LinksSection)]
+    public async Task Header_Displays_ExpectedSection(string testId)
     {
-        // Arrange
-        const string testId = TestIds.Header.LinksSection;
-
         // Act
         await Page.LoadAsync(_pageUrl);
         ILocator element = Page.GetByTestId(testId);
