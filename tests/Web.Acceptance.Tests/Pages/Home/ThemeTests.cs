@@ -11,8 +11,10 @@ public class ThemeTests : PageTest
     private Task EmulateLightModeAsync()
         => Page.EmulateMediaAsync(new PageEmulateMediaOptions { ColorScheme = ColorScheme.Light });
 
-    [Fact]
-    public async Task Page_WithLightSystemPreference_HasDarkTextOnLightBackground()
+    [Theory]
+    [InlineData("body")]
+    [InlineData("header")]
+    public async Task Page_WithLightSystemPreference_HasDarkTextOnLightBackground(string selector)
     {
         // Arrange
         await EmulateLightModeAsync();
@@ -21,7 +23,7 @@ public class ThemeTests : PageTest
         await Page.LoadAsync(_pageUrl);
 
         // Assert
-        ILocator body = Page.Locator("body");
+        ILocator body = Page.Locator(selector);
 
         string bgColor = await body.GetComputedStyleAsync("backgroundColor");
         string textColor = await body.GetComputedStyleAsync("color");
@@ -33,8 +35,10 @@ public class ThemeTests : PageTest
                                            "Text should be darker than background in light mode");
     }
 
-    [Fact]
-    public async Task Page_WithDarkSystemPreference_HasLightTextOnDarkBackground()
+    [Theory]
+    [InlineData("body")]
+    [InlineData("header")]
+    public async Task Page_WithDarkSystemPreference_HasLightTextOnDarkBackground(string selector)
     {
         // Arrange
         await EmulateDarkModeAsync();
@@ -43,16 +47,16 @@ public class ThemeTests : PageTest
         await Page.LoadAsync(_pageUrl);
 
         // Assert
-        ILocator body = Page.Locator("body");
+        ILocator element = Page.Locator(selector);
 
-        string bgColor = await body.GetComputedStyleAsync("backgroundColor");
-        string textColor = await body.GetComputedStyleAsync("color");
+        string bgColor = await element.GetComputedStyleAsync("backgroundColor");
+        string textColor = await element.GetComputedStyleAsync("color");
 
         int bgBrightness = GetRoughBrightness(bgColor);
         int textBrightness = GetRoughBrightness(textColor);
 
         textBrightness.ShouldBeGreaterThan(bgBrightness,
-                                          "Text should be lighter than background in dark mode");
+                                           $"{selector} text should be lighter than background in dark mode");
     }
 
     /// <summary>
