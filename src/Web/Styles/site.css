@@ -3,6 +3,11 @@
 @source "../**/*.razor";
 @source "../**/*.html";
 
+@theme {
+    /* Respect prefers-color-scheme */
+    --color-scheme: dark light;
+}
+
 @layer base {
     @import "./base.css";
 }
