@@ -1,14 +1,16 @@
 @using Rundog.Core.Models
 
-<header data-testid="@TestIds.Header.Section" class="bg-gray-50 text-gray-900 border-b-gray-900 border-2 dark:bg-gray-900 dark:text-gray-50 dark:border-b-gray-50">
+<header data-testid="@TestIds.Header.Section" class="flex justify-between bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-50 border-b-gray-900 border-b-1 dark:border-b-gray-50">
     <section data-testid="@TestIds.Header.LogoSection">
-        LOGO
+        <h1 class="font-title text-2xl p-3 border-b-gray-900 border-e-1 dark:border-b-gray-50">
+            @Site.Title
+        </h1>
     </section>
-    <section data-testid="@TestIds.Header.LinksSection">
-        <ul class="flex flex-horizontal space-x-4 p-4 justify-end">
+    <section class="flex items-end" data-testid="@TestIds.Header.LinksSection">
+        <ul class="flex flex-horizontal justify-end" id="@Selectors.InitialFocus.Id" tabindex="-1">
             @foreach (Link link in Links.HeaderLinks)
             {
-                <li>
+                <li class="font-title border-b-gray-900 dark:border-b-gray-50 px-4 py-3">
                     <a href="@link.Href">@link.Text</a>
                 </li>
             }
