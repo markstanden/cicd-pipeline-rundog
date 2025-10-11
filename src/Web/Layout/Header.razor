@@ -1,8 +1,8 @@
 @using Rundog.Core.Models
 
-<header data-testid="@TestIds.Header.Section">
+<header data-testid="@TestIds.Header.Section" class="bg-gray-50 text-gray-900 border-b-gray-900 border-2 dark:bg-gray-900 dark:text-gray-50 dark:border-b-gray-50">
     <section data-testid="@TestIds.Header.LinksSection">
-        <ul>
+        <ul class="flex flex-horizontal space-x-4 p-4 justify-end">
             @foreach (Link link in Links.HeaderLinks)
             {
                 <li>
