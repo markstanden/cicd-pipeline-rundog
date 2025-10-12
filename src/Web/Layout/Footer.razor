@@ -5,7 +5,7 @@
 
     @if (!AppConfig.IsProduction)
     {
-        <Section class="flex items-start flex-col">
+        <Section class="flex items-start flex-col border-e-1">
             <CommandDecoration CommandText="env" />
             <p data-testid="build-environment">
                 <strong>Deploy Environment:</strong> @AppConfig.DeployEnvironment
@@ -13,7 +13,7 @@
         </Section>
     }
 
-    <Section class="flex items-start flex-col">
+    <Section class="flex items-start flex-col border-s-1">
         <CommandDecoration CommandText="copyright" />
         <p data-testid="copyright">
             &copy; 2025 - rundog.dev
