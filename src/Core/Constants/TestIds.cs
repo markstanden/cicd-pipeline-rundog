@@ -85,4 +85,40 @@ public static class TestIds
         /// </summary>
         public const string Intro = "hero-intro";
     }
+
+    /// <summary>
+    ///     Test handles for elements within the command decoration section.
+    /// </summary>
+    public static class CommandDecoration
+    {
+        /// <summary>
+        /// The identifier for command decoration in the logo section
+        /// </summary>
+        public const string Logo = "command-logo";
+
+        /// <summary>
+        /// The identifier for command decoration in the links section
+        /// </summary>
+        public const string Links = "command-links";
+
+        /// <summary>
+        /// The identifier for command decoration in the hero section
+        /// </summary>
+        public const string HeroSection = "command-hero";
+
+        /// <summary>
+        /// The identifier for command decoration for the name in the hero section
+        /// </summary>
+        public const string Name = "command-name";
+
+        /// <summary>
+        /// The identifier for command decoration for the motto in the hero section
+        /// </summary>
+        public const string Motto = "command-motto";
+
+        /// <summary>
+        /// The identifier for command decoration for the description in the hero section
+        /// </summary>
+        public const string Description = "command-description";
+    }
 }
