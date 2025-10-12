@@ -1,16 +1,23 @@
 @inject IAppConfiguration AppConfig
 
-<footer class="px-2 py-2 border-top text-muted display-flex flex-column align-items-center"
+<footer class="flex justify-between bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-50 border-t-gray-900 border-t-1 dark:border-t-gray-50"
         data-testid="@TestIds.Footer.Section">
-    <section class="d-flex align-items-center justify-content-between flex-row">
-        @if (!AppConfig.IsProduction)
-        {
-            <p class="d-inline p-0 m-0" data-testid="build-environment">
-                <strong>Environment:</strong> @AppConfig.DeployEnvironment
+
+    @if (!AppConfig.IsProduction)
+    {
+        <Section class="flex items-start flex-col">
+            <CommandDecoration CommandText="env" />
+            <p data-testid="build-environment">
+                <strong>Deploy Environment:</strong> @AppConfig.DeployEnvironment
             </p>
-        }
-        <p class="bg-red-400 size-4" data-testid="copyright">
+        </Section>
+    }
+
+    <Section class="flex items-start flex-col">
+        <CommandDecoration CommandText="copyright" />
+        <p data-testid="copyright">
             &copy; 2025 - rundog.dev
         </p>
-    </section>
+    </Section>
+
 </footer>
