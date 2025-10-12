@@ -8,7 +8,7 @@ public static class CommandDecorationText
     /// <summary>
     /// The prompt symbol displayed as a section decoration.
     /// </summary>
-    public const string Prompt = "&gt;";
+    public const string Prompt = ">";
 
     /// <summary>
     /// The flag indicating a command should be shown as a decoration.
