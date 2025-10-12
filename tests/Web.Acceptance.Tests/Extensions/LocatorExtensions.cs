@@ -19,7 +19,7 @@ public static partial class LocatorExtensions
     /// <param name="locator">The locator representing the DOM element.</param>
     /// <param name="jsPropertyName">The CSS property name (in JS notation) to retrieve.</param>
     /// <returns>A task that resolves to the value of the specified CSS property as a string.</returns>
-    /// <throws cref="ArgumentException">Thrown if the property name is not a valid JavaScript identifier.</throws>
+    /// <exception cref="ArgumentException">Thrown if the property name is not a valid JavaScript identifier.</exception>
     public async static Task<string> GetComputedStyleAsync(this ILocator locator, string jsPropertyName)
     {
         // Validate jsPropertyName contains only valid JS identifier characters
