@@ -38,16 +38,16 @@
           DependsOnTargets="NpmInstallIfNeeded"
           BeforeTargets="Build;Publish"
           Condition="Exists('package.json')">
-    <Message Text="Building Tailwind CSS for $(Configuration)..."
-             Importance="high" />
-
-    <Exec Command="npm run build-css"
-          Condition="'$(Configuration)'=='Debug'"
-          WorkingDirectory="$(MSBuildProjectDirectory)" />
-
-    <Exec Command="npm run build-css:prod"
-          Condition="'$(Configuration)'!='Debug'"
-          WorkingDirectory="$(MSBuildProjectDirectory)" />
-  </Target>
+        <Message Text="Building Tailwind CSS for $(Configuration)..."
+                 Importance="high" />
+    
+        <Exec Command="npm run build-css"
+              Condition="'$(Configuration)'=='Debug'"
+              WorkingDirectory="$(MSBuildProjectDirectory)" />
+    
+        <Exec Command="npm run build-css:prod"
+              Condition="'$(Configuration)'!='Debug'"
+              WorkingDirectory="$(MSBuildProjectDirectory)" />
+    </Target>
 
 </Project>
