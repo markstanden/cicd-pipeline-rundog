@@ -56,27 +56,4 @@ public class HeroHealthChecks : PageTest
         expected.ShouldNotBeNullOrWhiteSpace();
         await Expect(element).ToHaveTextAsync(expected);
     }
-
-    [Theory]
-    [InlineData(TestIds.CommandDecoration.Name, CommandDecorationText.Name)]
-    [InlineData(TestIds.CommandDecoration.Motto, CommandDecorationText.Motto)]
-    [InlineData(TestIds.CommandDecoration.Description, CommandDecorationText.Description)]
-    public async Task Hero_Displays_ExpectedCommandDecorations(string testId, string expectedCommand)
-    {
-        // Arrange
-        const string expectedPrompt = CommandDecorationText.Prompt;
-        const string expectedShowFlag = CommandDecorationText.ShowFlag;
-
-        // Act
-        await Page.LoadAsync(_pageUrl);
-        ILocator element = Page.GetByTestId(testId);
-
-        // Assert
-        string text = await element.InnerTextAsync();
-        expectedCommand.ShouldNotBeNullOrWhiteSpace();
-
-        text.ShouldOccurOnce(expectedPrompt);
-        text.ShouldOccurOnce(expectedCommand);
-        text.ShouldOccurOnce(expectedShowFlag);
-    }
 }

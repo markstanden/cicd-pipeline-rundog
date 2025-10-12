@@ -114,11 +114,11 @@ public static class TestIds
         /// <summary>
         /// The identifier for command decoration for the motto in the hero section
         /// </summary>
-        public const string Motto = "command-motto";
+        public const string Slogan = "command-motto";
 
         /// <summary>
         /// The identifier for command decoration for the description in the hero section
         /// </summary>
-        public const string Description = "command-description";
+        public const string Intro = "command-description";
     }
 }

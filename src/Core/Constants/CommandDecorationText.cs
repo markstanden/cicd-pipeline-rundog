@@ -23,12 +23,12 @@ public static class CommandDecorationText
     /// <summary>
     /// The label for the links section decoration.
     /// </summary>
-    public const string Links = "logo";
+    public const string Links = "links";
 
     /// <summary>
     /// The label for the hero section decoration.
     /// </summary>
-    public const string Hero = "developer info";
+    public const string HeroSection = "hero";
 
     /// <summary>
     /// The label for the name section decoration.
@@ -36,12 +36,12 @@ public static class CommandDecorationText
     public const string Name = "name";
 
     /// <summary>
-    /// The label for the motto section decoration.
+    /// The label for the slogan section decoration.
     /// </summary>
-    public const string Motto = "motto";
+    public const string Slogan = "motto";
 
     /// <summary>
-    /// The label for the description section decoration.
+    /// The label for the introduction section decoration.
     /// </summary>
-    public const string Description = "desc";
+    public const string Introduction = "desc";
 }

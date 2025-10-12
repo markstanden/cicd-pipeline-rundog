@@ -54,5 +54,4 @@ public class HeaderHealthChecks : PageTest
         matchingPair.href.ShouldNotBeNullOrWhiteSpace();
         matchingPair.href.ShouldContain(expectedHref);
     }
-
 }
