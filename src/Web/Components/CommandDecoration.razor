@@ -3,9 +3,10 @@
           mb-0
           @Class"
    @attributes="AdditionalAttributes"
+   data-testid="@TestId"
    aria-hidden="true"
    role="presentation">
-    &gt; @CommandText
+    @CommandDecorationText.Prompt @CommandText @CommandDecorationText.ShowFlag
 </p>
 
 
@@ -21,6 +22,12 @@
     /// </summary>
     [Parameter]
     public string Class { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The test ID to apply to the text element.
+    /// </summary>
+    [Parameter]
+    public string? TestId { get; set; } = null;
 
     /// <summary>
     /// Additional attributes that will be applied to the main container element.
