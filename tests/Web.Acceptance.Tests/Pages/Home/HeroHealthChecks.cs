@@ -14,7 +14,7 @@ public class HeroHealthChecks : PageTest
     {
         // Arrange
         const string testId = TestIds.Hero.Name;
-        const string expected = Hero.Name;
+        const string expected = HeroText.Name;
 
         // Act
         await Page.LoadAsync(_pageUrl);
@@ -30,7 +30,7 @@ public class HeroHealthChecks : PageTest
     {
         // Arrange
         const string testId = TestIds.Hero.Slogan;
-        const string expected = Hero.Slogan;
+        const string expected = HeroText.Slogan;
 
         // Act
         await Page.LoadAsync(_pageUrl);
@@ -46,7 +46,7 @@ public class HeroHealthChecks : PageTest
     {
         // Arrange
         const string testId = TestIds.Hero.Intro;
-        const string expected = Hero.Introduction;
+        const string expected = HeroText.Introduction;
 
         // Act
         await Page.LoadAsync(_pageUrl);

@@ -28,6 +28,11 @@ public static class TestIds
         public const string Section = "header-section";
 
         /// <summary>
+        /// The identifier for the logo section within the header
+        /// </summary>
+        public const string LogoSection = "header-logo-section";
+
+        /// <summary>
         /// The identifier for the links section within the header
         /// </summary>
         public const string LinksSection = "header-links-section";
@@ -79,5 +84,41 @@ public static class TestIds
         /// The identifier for the developer's introduction or brief description used in testing.
         /// </summary>
         public const string Intro = "hero-intro";
+    }
+
+    /// <summary>
+    ///     Test handles for elements within the command decoration section.
+    /// </summary>
+    public static class CommandDecoration
+    {
+        /// <summary>
+        /// The identifier for command decoration in the logo section
+        /// </summary>
+        public const string Logo = "command-logo";
+
+        /// <summary>
+        /// The identifier for command decoration in the links section
+        /// </summary>
+        public const string Links = "command-links";
+
+        /// <summary>
+        /// The identifier for command decoration in the hero section
+        /// </summary>
+        public const string HeroSection = "command-hero";
+
+        /// <summary>
+        /// The identifier for command decoration for the name in the hero section
+        /// </summary>
+        public const string Name = "command-name";
+
+        /// <summary>
+        /// The identifier for command decoration for the motto in the hero section
+        /// </summary>
+        public const string Slogan = "command-motto";
+
+        /// <summary>
+        /// The identifier for command decoration for the description in the hero section
+        /// </summary>
+        public const string Intro = "command-description";
     }
 }

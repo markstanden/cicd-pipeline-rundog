@@ -1,0 +1,43 @@
+<p class="@Font text-[0.50rem]
+          text-gray-500 dark:text-gray-300
+          mb-0
+          @Class"
+   @attributes="AdditionalAttributes"
+   data-testid="@TestId"
+   aria-hidden="true"
+   role="presentation">
+    @CommandDecorationText.Prompt  @CommandText @CommandDecorationText.ShowFlag
+</p>
+
+
+@code {
+    /// <summary>
+    /// The font tailwind/CSS class to apply to the command text.
+    /// </summary>
+    [Parameter]
+    public string Font { get; set; } = "font-mono";
+
+    /// <summary>
+    /// Additional tailwind/CSS classes to apply to the main container element.
+    /// </summary>
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The test ID to apply to the text element.
+    /// </summary>
+    [Parameter]
+    public string? TestId { get; set; } = null;
+
+    /// <summary>
+    /// Additional attributes that will be applied to the main container element.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    /// <summary>
+    /// The command text to display (decorative only).
+    /// </summary>
+    [Parameter]
+    public string CommandText { get; set; } = string.Empty;
+}

@@ -1,0 +1,21 @@
+<CommandDecoration CommandText="@CommandDecorationText.HeroSection"
+                   TestId="@TestIds.CommandDecoration.HeroSection"/>
+<div class="max-w-3xl m-6">
+    <CommandDecoration CommandText="@CommandDecorationText.Name"
+                       TestId="@TestIds.CommandDecoration.Name"/>
+    <h1 data-testid="@TestIds.Hero.Name" class="text-5xl font-bold mb-8">
+        @HeroText.Name
+    </h1>
+    <CommandDecoration CommandText="@CommandDecorationText.Slogan"
+                       TestId="@TestIds.CommandDecoration.Slogan"/>
+    <p data-testid="@TestIds.Hero.Slogan"
+       class="text-xl text-gray-600 dark:text-gray-400 mb-8">
+        @HeroText.Slogan
+    </p>
+    <CommandDecoration CommandText="@CommandDecorationText.Introduction"
+                       TestId="@TestIds.CommandDecoration.Intro"/>
+    <p data-testid="@TestIds.Hero.Intro"
+       class="text-lg mb-8">
+        @HeroText.Introduction
+    </p>
+</div>

@@ -3,7 +3,7 @@ namespace Rundog.Core.Constants;
 /// <summary>
 ///     Site wide constants
 /// </summary>
-public static class Hero
+public static class HeroText
 {
     /// <summary>
     ///     The name of the developer described on the page.

@@ -2,16 +2,7 @@
 
 <PageTitle>@Site.Title</PageTitle>
 
-<section data-testid="@TestIds.Hero.Section" class="min-h-screen flex items-center justify-center px-4">
-    <div class="max-w-4xl mx-auto text-center">
-        <h1 data-testid="@TestIds.Hero.Name" class="text-5xl font-bold mb-6">
-            @Hero.Name
-        </h1>
-        <p data-testid="@TestIds.Hero.Slogan" class="text-xl text-gray-600 mb-8">
-            @Hero.Slogan
-        </p>
-        <p data-testid="@TestIds.Hero.Intro" class="text-lg mb-8">
-            @Hero.Introduction
-        </p>
-    </div>
-</section>
+<Section data-testid="@TestIds.Hero.Section"
+         class="min-h-96 flex flex-col items-start justify-items-center-safe px-4">
+    <Hero />
+</Section>
