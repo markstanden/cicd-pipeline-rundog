@@ -8,12 +8,17 @@ public static class CommandDecorationText
     /// <summary>
     /// The prompt symbol displayed as a section decoration.
     /// </summary>
-    public const string Prompt = ">";
+    public const string Prompt = "$";
 
     /// <summary>
-    /// The flag indicating a command should be shown as a decoration.
+    /// The flag indicating a command should show the wrapped content.
     /// </summary>
     public const string ShowFlag = "--show";
+
+    /// <summary>
+    /// The flag indicating a command should show the wrapped content.
+    /// </summary>
+    public const string HideFlag = "--hide";
 
     /// <summary>
     /// The label for the logo section decoration.

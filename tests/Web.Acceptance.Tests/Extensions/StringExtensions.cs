@@ -14,8 +14,8 @@ public static class StringExtensions
         ArgumentException.ThrowIfNullOrEmpty(source);
         ArgumentException.ThrowIfNullOrEmpty(substring);
 
-        int count = source.Split(substring).Length - 1;
-        count.ShouldBe(times);
+        int occurrenceCount = source.Split(substring).Length - 1;
+        occurrenceCount.ShouldBe(times);
     }
 
     /// <summary>

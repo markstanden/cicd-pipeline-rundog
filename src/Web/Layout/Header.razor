@@ -2,7 +2,8 @@
         class="flex justify-between bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-50 border-b-gray-900 border-b-1 dark:border-b-gray-50">
     <Section class="text-2xl px-3 py-2 border-b-gray-900 border-e-1 dark:border-b-gray-50"
              data-testid="@TestIds.Header.LogoSection">
-        <CommandDecoration CommandText="logo --show" />
+        <CommandDecoration CommandText="@CommandDecorationText.Logo"
+                           TestId="@TestIds.CommandDecoration.Logo"/>
         <h1 >
             @Site.Title
         </h1>
@@ -11,7 +12,8 @@
                   border-s-1 border-b-gray-900 dark:border-b-gray-50
                     flex flex-col justify-between"
              data-testid="@TestIds.Header.LinksSection">
-        <CommandDecoration CommandText="links --show" />
+        <CommandDecoration CommandText="@CommandDecorationText.Links"
+                           TestId="@TestIds.CommandDecoration.Links"/>
         <ul class="flex flex-horizontal justify-end space-x-2"
             id="@Selectors.InitialFocus.Id"
             tabindex="-1">
