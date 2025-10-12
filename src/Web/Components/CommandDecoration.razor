@@ -1,0 +1,36 @@
+<p class="@Font text-[0.45rem]
+          text-gray-400
+          mb-0
+          @Class"
+   @attributes="AdditionalAttributes"
+   aria-hidden="true"
+   role="presentation">
+    &gt; @CommandText
+</p>
+
+
+@code {
+    /// <summary>
+    /// The font tailwind/CSS class to apply to the command text.
+    /// </summary>
+    [Parameter]
+    public string Font { get; set; } = "font-title";
+
+    /// <summary>
+    /// Additional tailwind/CSS classes to apply to the main container element.
+    /// </summary>
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Additional attributes that will be applied to the main container element.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    /// <summary>
+    /// The command text to display (decorative only).
+    /// </summary>
+    [Parameter]
+    public string CommandText { get; set; } = string.Empty;
+}
