@@ -16,7 +16,7 @@ public static class CommandDecorationText
     public const string ShowFlag = "--show";
 
     /// <summary>
-    /// The flag indicating a command should show the wrapped content.
+    /// The flag indicating a command should hide the wrapped content.
     /// </summary>
     public const string HideFlag = "--hide";
 
