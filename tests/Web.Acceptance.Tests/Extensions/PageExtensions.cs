@@ -1,5 +1,3 @@
-using Microsoft.Playwright;
-
 namespace Rundog.Acceptance.Tests.Extensions;
 
 public static class PageExtensions
@@ -12,11 +10,16 @@ public static class PageExtensions
     /// <param name="url">The URL to navigate to</param>
     /// <param name="options">Optional navigation options</param>
     /// <returns>The response from the navigation</returns>
-    public async static Task<IResponse?> LoadAsync(this IPage page, string url, PageGotoOptions? options = null)
+    public static async Task<IResponse?> LoadAsync(this IPage page, string url, PageGotoOptions? options = null)
     {
         IResponse? response = await page.GotoAsync(url, options);
-        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
-        await page.WaitForSelectorAsync($"[data-testid='{TestIds.Main.Section}']");
+
+        await page.GetByTestId(TestIds.Site.LoadingIndicator)
+            .WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Hidden });
+
+        await page.GetByTestId(TestIds.Main.Section)
+            .WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible });
+
         return response;
     }
 }

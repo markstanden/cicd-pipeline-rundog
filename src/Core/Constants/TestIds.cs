@@ -1,20 +1,25 @@
 namespace Rundog.Core.Constants;
 
 /// <summary>
-///     A collection of constant test handles used throughout the application for testing purposes.
+/// A collection of constant test handles used throughout the application for testing purposes.
 /// </summary>
 public static class TestIds
 {
     /// <summary>
-    ///     Site global elements
+    /// Site global elements
     /// </summary>
     public static class Site
     {
         /// <summary>
-        ///     The main title of the Site.
-        ///     Displayed in the tab within the browser
+        /// The main title of the Site.
+        /// Displayed in the tab within the browser
         /// </summary>
         public const string Title = "site-title";
+
+        /// <summary>
+        /// The identifier for the loading indicator element used in testing.
+        /// </summary>
+        public const string LoadingIndicator = "loading-indicator";
     }
 
     /// <summary>
@@ -61,7 +66,7 @@ public static class TestIds
     }
 
     /// <summary>
-    ///     Test handles for elements within the developer Hero
+    /// Test handles for elements within the developer Hero
     /// </summary>
     public static class Hero
     {
@@ -87,7 +92,7 @@ public static class TestIds
     }
 
     /// <summary>
-    ///     Test handles for elements within the command decoration section.
+    /// Test handles for elements within the command decoration section.
     /// </summary>
     public static class CommandDecoration
     {
