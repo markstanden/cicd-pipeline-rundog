@@ -14,14 +14,8 @@ public static class PageExtensions
     {
         IResponse? response = await page.GotoAsync(url, options);
 
-        bool isLoading = await page.GetByTestId(TestIds.Site.LoadingIndicator)
-            .IsVisibleAsync();
-
-        if (isLoading)
-        {
-            await page.GetByTestId(TestIds.Site.LoadingIndicator)
-                .WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Hidden });
-        }
+        await page.GetByTestId(TestIds.Site.LoadingIndicator)
+            .WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Hidden });
 
         await page.GetByTestId(TestIds.Main.Section)
             .WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible });
